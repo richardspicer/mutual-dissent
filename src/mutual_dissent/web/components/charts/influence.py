@@ -145,7 +145,7 @@ def render_influence_heatmap(transcripts: list[DebateTranscript]) -> None:
     data = compute_influence(transcripts)
 
     if not data["models"]:
-        ui.label("No data for influence heatmap.").classes("text-gray-500 italic")
+        ui.label("No data for influence heatmap.").classes("text-zinc-500 italic")
         return
 
     models = data["models"]
@@ -169,8 +169,8 @@ def render_influence_heatmap(transcripts: list[DebateTranscript]) -> None:
                 "name": "Target (shifted)",
                 "nameLocation": "center",
                 "nameGap": 40,
-                "axisLabel": {"color": "#9ca3af"},
-                "nameTextStyle": {"color": "#9ca3af"},
+                "axisLabel": {"color": "#a1a1aa"},
+                "nameTextStyle": {"color": "#a1a1aa"},
                 "splitArea": {"show": True},
             },
             "yAxis": {
@@ -179,8 +179,8 @@ def render_influence_heatmap(transcripts: list[DebateTranscript]) -> None:
                 "name": "Source (influencer)",
                 "nameLocation": "center",
                 "nameGap": 60,
-                "axisLabel": {"color": "#9ca3af"},
-                "nameTextStyle": {"color": "#9ca3af"},
+                "axisLabel": {"color": "#a1a1aa"},
+                "nameTextStyle": {"color": "#a1a1aa"},
                 "splitArea": {"show": True},
             },
             "visualMap": {
@@ -190,8 +190,8 @@ def render_influence_heatmap(transcripts: list[DebateTranscript]) -> None:
                 "orient": "horizontal",
                 "left": "center",
                 "bottom": 0,
-                "textStyle": {"color": "#9ca3af"},
-                "inRange": {"color": ["#1e293b", "#3b82f6", "#ef4444"]},
+                "textStyle": {"color": "#a1a1aa"},
+                "inRange": {"color": ["#27272a", "#3b82f6", "#ef4444"]},
             },
             "series": [
                 {
@@ -200,7 +200,7 @@ def render_influence_heatmap(transcripts: list[DebateTranscript]) -> None:
                     "label": {
                         "show": True,
                         ":formatter": r"params => params.value[2].toFixed(2)",
-                        "color": "#e5e7eb",
+                        "color": "#e4e4e7",
                     },
                 }
             ],

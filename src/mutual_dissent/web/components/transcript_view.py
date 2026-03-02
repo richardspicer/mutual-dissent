@@ -179,20 +179,20 @@ def _render_response_card(
         bg_class = colors["bg"]
         text_class = colors["text"]
 
-    with ui.card().classes(f"w-full border {border_class} {bg_class} p-4"):
+    with ui.card().classes(f"w-full border {border_class} {bg_class} p-5 rounded-2xl"):
         # Header row: alias + timing.
         with ui.row().classes("w-full justify-between items-center"):
             ui.label(resp.model_alias.upper()).classes(f"font-bold text-lg {text_class}")
             timing = format_timing_web(resp)
             if timing:
-                ui.label(timing).classes("text-sm text-gray-400")
+                ui.label(timing).classes("text-sm text-zinc-400")
 
         if resp.error:
             ui.label(f"Error: {resp.error}").classes("text-red-400 mt-2")
         elif show_diff and previous_resp and not previous_resp.error:
             _render_diff(previous_resp.content, resp.content)
         else:
-            ui.markdown(resp.content).classes("mt-2")
+            ui.markdown(resp.content).classes("mt-3 prose prose-zinc dark:prose-invert max-w-none")
 
 
 def _render_diff(old_text: str, new_text: str) -> None:
@@ -210,7 +210,7 @@ def _render_diff(old_text: str, new_text: str) -> None:
     diff_lines = compute_diff(old_text, new_text)
 
     if not diff_lines:
-        ui.label("No changes").classes("text-gray-500 italic mt-2")
+        ui.label("No changes").classes("text-zinc-500 italic mt-2")
         return
 
     html_parts: list[str] = ['<pre class="text-sm mt-2 whitespace-pre-wrap">']
@@ -278,19 +278,21 @@ def render_synthesis_section(synthesis: ModelResponse) -> None:
 
     colors = get_css_colors(synthesis.model_alias)
 
-    with ui.card().classes(f"w-full border-2 {colors['border']} bg-gray-800 p-6"):
+    with ui.card().classes(f"w-full border-2 {colors['border']} bg-zinc-900 p-6 rounded-2xl"):
         with ui.row().classes("w-full justify-between items-center"):
             ui.label(f"Synthesis by {synthesis.model_alias}").classes(
                 f"font-bold text-xl {colors['text']}"
             )
             timing = format_timing_web(synthesis)
             if timing:
-                ui.label(timing).classes("text-sm text-gray-400")
+                ui.label(timing).classes("text-sm text-zinc-400")
 
         if synthesis.error:
             ui.label(f"Synthesis failed: {synthesis.error}").classes("text-red-400 mt-2")
         else:
-            ui.markdown(synthesis.content).classes("mt-4")
+            ui.markdown(synthesis.content).classes(
+                "mt-4 prose prose-zinc dark:prose-invert max-w-none"
+            )
 
 
 def render_metadata_bar(transcript: DebateTranscript) -> None:
@@ -304,7 +306,7 @@ def render_metadata_bar(transcript: DebateTranscript) -> None:
     """
     from nicegui import ui
 
-    with ui.row().classes("w-full flex-wrap gap-4 text-sm text-gray-400"):
+    with ui.row().classes("w-full flex-wrap gap-4 text-sm text-zinc-400"):
         ui.label(f"ID: {transcript.short_id}")
 
         panel_str = ", ".join(transcript.panel) if transcript.panel else "none"
@@ -350,19 +352,19 @@ def render_score_section(transcript: DebateTranscript) -> None:
     if not score_data:
         return
     if score_data.get("accuracy", -1) < 0:
-        ui.label("Score: Judge output could not be parsed").classes("text-gray-500 italic")
+        ui.label("Score: Judge output could not be parsed").classes("text-zinc-500 italic")
         return
 
-    with ui.card().classes("w-full border border-gray-600 bg-gray-800/50 p-4"):
-        ui.label("Score").classes("font-bold text-lg text-gray-200")
+    with ui.card().classes("w-full border border-zinc-700 bg-zinc-900/50 p-5 rounded-2xl"):
+        ui.label("Score").classes("font-bold text-lg text-zinc-100")
         with ui.row().classes("gap-6 mt-2"):
-            ui.label(f"Accuracy: {score_data['accuracy']}/5").classes("text-gray-300")
-            ui.label(f"Completeness: {score_data['completeness']}/5").classes("text-gray-300")
-            ui.label(f"Overall: {score_data['overall']}/5").classes("text-gray-300")
+            ui.label(f"Accuracy: {score_data['accuracy']}/5").classes("text-zinc-300")
+            ui.label(f"Completeness: {score_data['completeness']}/5").classes("text-zinc-300")
+            ui.label(f"Overall: {score_data['overall']}/5").classes("text-zinc-300")
 
         explanation = score_data.get("explanation", "")
         if explanation:
-            ui.label(explanation).classes("text-sm text-gray-400 mt-2")
+            ui.label(explanation).classes("text-sm text-zinc-400 mt-2")
 
 
 def render_transcript(
@@ -384,8 +386,8 @@ def render_transcript(
     from nicegui import ui
 
     # Query.
-    ui.label("Query").classes("font-bold text-lg text-gray-300")
-    ui.label(transcript.query).classes("text-gray-200 mb-4")
+    ui.label("Query").classes("font-bold text-lg text-zinc-300")
+    ui.label(transcript.query).classes("text-zinc-200 mb-4")
 
     # Rounds — last one defaults to open.
     for i, debate_round in enumerate(transcript.rounds):
@@ -399,12 +401,12 @@ def render_transcript(
 
     # Synthesis.
     if transcript.synthesis:
-        ui.separator().classes("my-4")
+        ui.separator().classes("my-4 border-zinc-700")
         render_synthesis_section(transcript.synthesis)
 
     # Score.
     render_score_section(transcript)
 
     # Metadata.
-    ui.separator().classes("my-4")
+    ui.separator().classes("my-4 border-zinc-700")
     render_metadata_bar(transcript)

@@ -74,12 +74,12 @@ def cumulative_cost_series(summaries: list[dict[str, Any]]) -> dict[str, Any]:
 
 # ECharts hex colors matching MODEL_CSS_COLORS.
 _ECHART_COLORS: dict[str, str] = {
-    "claude": "#d946ef",
-    "gpt": "#22c55e",
-    "gemini": "#06b6d4",
-    "grok": "#eab308",
+    "claude": "#d946ef",  # fuchsia-500
+    "gpt": "#22c55e",  # emerald-500
+    "gemini": "#06b6d4",  # cyan-500
+    "grok": "#eab308",  # amber-500
 }
-_DEFAULT_COLOR = "#6b7280"
+_DEFAULT_COLOR = "#71717a"  # zinc-500
 
 
 def render_per_debate_chart(transcript: DebateTranscript) -> None:
@@ -93,7 +93,7 @@ def render_per_debate_chart(transcript: DebateTranscript) -> None:
     data = per_debate_cost(transcript)
 
     if not data["models"]:
-        ui.label("Cost data unavailable.").classes("text-gray-500 italic")
+        ui.label("Cost data unavailable.").classes("text-zinc-500 italic")
         return
 
     colors = [_ECHART_COLORS.get(m, _DEFAULT_COLOR) for m in data["models"]]
@@ -107,16 +107,16 @@ def render_per_debate_chart(transcript: DebateTranscript) -> None:
             "xAxis": {
                 "type": "category",
                 "data": data["models"],
-                "axisLabel": {"color": "#9ca3af"},
+                "axisLabel": {"color": "#a1a1aa"},
             },
             "yAxis": {
                 "type": "value",
                 "name": "Cost (USD)",
                 "axisLabel": {
-                    "color": "#9ca3af",
+                    "color": "#a1a1aa",
                     ":formatter": r"value => '$' + value.toFixed(4)",
                 },
-                "nameTextStyle": {"color": "#9ca3af"},
+                "nameTextStyle": {"color": "#a1a1aa"},
             },
             "series": [
                 {
@@ -142,7 +142,7 @@ def render_cumulative_chart(summaries: list[dict[str, Any]]) -> None:
     data = cumulative_cost_series(summaries)
 
     if not data["dates"]:
-        ui.label("No cost data available for cumulative chart.").classes("text-gray-500 italic")
+        ui.label("No cost data available for cumulative chart.").classes("text-zinc-500 italic")
         return
 
     ui.echart(
@@ -154,16 +154,16 @@ def render_cumulative_chart(summaries: list[dict[str, Any]]) -> None:
             "xAxis": {
                 "type": "category",
                 "data": data["dates"],
-                "axisLabel": {"color": "#9ca3af", "rotate": 45},
+                "axisLabel": {"color": "#a1a1aa", "rotate": 45},
             },
             "yAxis": {
                 "type": "value",
                 "name": "Cumulative USD",
                 "axisLabel": {
-                    "color": "#9ca3af",
+                    "color": "#a1a1aa",
                     ":formatter": r"value => '$' + value.toFixed(2)",
                 },
-                "nameTextStyle": {"color": "#9ca3af"},
+                "nameTextStyle": {"color": "#a1a1aa"},
             },
             "series": [
                 {

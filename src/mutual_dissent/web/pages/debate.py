@@ -107,25 +107,31 @@ def _render_form_panel(config: Config) -> _FormWidgets:
     query_input = (
         ui.textarea(label="Query", placeholder="Enter your question...")
         .classes("w-full font-mono")
-        .props("autogrow outlined dark")
+        .props("autogrow outlined")
     )
 
-    ui.label("Panel").classes("font-mono text-sm text-gray-400 mt-2")
+    ui.label("Panel Models").classes("font-mono text-sm text-zinc-400 mt-6 mb-3")
     panel_checks: dict[str, Any] = {}
-    for alias in available_aliases:
-        checked = alias in config.default_panel
-        panel_checks[alias] = ui.checkbox(alias, value=checked).classes("font-mono text-sm")
+    color_map = {"claude": "fuchsia", "gpt": "emerald", "gemini": "cyan", "grok": "amber"}
+    with ui.row().classes("gap-4 flex-wrap"):
+        for alias in available_aliases:
+            base = alias.split("-")[0]
+            color = color_map.get(base, "zinc")
+            checked = alias in config.default_panel
+            with ui.row().classes("items-center gap-2"):
+                ui.icon("smart_toy", color=color).classes("text-2xl")
+                panel_checks[alias] = ui.checkbox(alias, value=checked).classes("font-mono")
 
     synth_select = (
         ui.select(available_aliases, value=config.default_synthesizer, label="Synthesizer")
         .classes("w-full font-mono")
-        .props("outlined dark")
+        .props("outlined")
     )
 
     round_input = (
         ui.number(label="Rounds", value=config.default_rounds, min=1, max=3, step=1)
         .classes("w-full font-mono")
-        .props("outlined dark")
+        .props("outlined")
     )
 
     with ui.expansion("Ground Truth", icon="fact_check").classes("w-full text-sm"):
@@ -135,16 +141,14 @@ def _render_form_panel(config: Config) -> _FormWidgets:
                 placeholder="Optional reference answer for scoring...",
             )
             .classes("w-full font-mono text-xs")
-            .props("autogrow outlined dark")
+            .props("autogrow outlined")
         )
 
     submit_btn = (
-        ui.button("Run Debate", icon="play_arrow").classes("w-full mt-2").props("color=primary")
+        ui.button("Run Debate", icon="play_arrow").classes("w-full mt-2").props("color=emerald")
     )
 
-    abort_btn = (
-        ui.button("Abort", icon="stop").classes("w-full mt-1").props("color=negative outline")
-    )
+    abort_btn = ui.button("Abort", icon="stop").classes("w-full mt-1").props("color=red outline")
     abort_btn.visible = False
 
     diff_toggle = ui.switch("Show diff", value=False).classes("font-mono text-xs mt-2")
@@ -179,7 +183,7 @@ def _update_status(
         text: Status text to display.
     """
     icon._props["name"] = icon_name
-    icon.classes(icon_class, remove="text-gray-400 text-blue-400 text-green-400 text-red-400")
+    icon.classes(icon_class, remove="text-zinc-400 text-blue-400 text-green-400 text-red-400")
     label.text = text
     icon.update()
     label.update()
@@ -205,8 +209,8 @@ def render() -> None:
     animation: fadeIn 0.3s ease-in;
 }
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
 }""")
 
     config = load_config()
@@ -214,10 +218,13 @@ def render() -> None:
 
     with ui.row().classes("w-full h-full gap-0"):
         with ui.column().classes(
-            "w-1/4 min-w-[280px] max-w-[360px] p-4 bg-gray-900 "
-            "border-r border-gray-700 gap-4 h-[calc(100vh-120px)] overflow-y-auto"
+            "w-1/4 min-w-[280px] max-w-[360px] p-4 bg-zinc-900 "
+            "border-r border-zinc-700 gap-4 h-[calc(100vh-120px)] overflow-y-auto"
         ):
-            form = _render_form_panel(config)
+            with ui.card().classes(
+                "w-full h-full p-6 bg-zinc-900 border border-zinc-700 rounded-2xl"
+            ):
+                form = _render_form_panel(config)
 
         with (
             ui.column()
@@ -227,7 +234,7 @@ def render() -> None:
             _status_container, status_icon, status_label = render_status_bar()
             response_container = ui.column().classes("w-full gap-3")
             with response_container:
-                ui.label("Submit a query to start a debate.").classes("text-gray-500 font-mono")
+                ui.label("Submit a query to start a debate.").classes("text-zinc-500 font-mono")
 
     status = _StatusWidgets(
         status_icon=status_icon,
@@ -254,8 +261,8 @@ def render() -> None:
 
         status.response_container.clear()
         with status.response_container:
-            ui.label("Query").classes("font-bold text-lg text-gray-300 animate-fade-in")
-            ui.label(query_text.strip()).classes("text-gray-200 mb-4 animate-fade-in")
+            ui.label("Query").classes("font-bold text-lg text-zinc-300 animate-fade-in")
+            ui.label(query_text.strip()).classes("text-zinc-200 mb-4 animate-fade-in")
 
         _update_status(
             status.status_icon,

@@ -68,10 +68,10 @@ def render_status_bar() -> tuple[object, object, object]:
     from nicegui import ui
 
     with ui.row().classes(
-        "w-full items-center gap-2 px-4 py-2 bg-gray-800/50 "
-        "border border-gray-700 rounded font-mono text-sm"
+        "w-full items-center gap-3 px-6 py-3 bg-zinc-900 "
+        "border border-zinc-700 rounded-2xl font-mono text-sm"
     ) as container:
-        icon = ui.icon("hourglass_empty").classes("text-gray-400")
-        label = ui.label("Ready").classes("text-gray-400")
+        icon = ui.icon("hourglass_empty").classes("text-zinc-400")
+        label = ui.label("Ready").classes("text-zinc-400 flex-1")
 
     return container, icon, label

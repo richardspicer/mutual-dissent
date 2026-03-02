@@ -30,8 +30,8 @@ class TestModelCssColors:
         assert "fuchsia" in colors["border"]
 
     def test_get_css_colors_unknown_alias(self) -> None:
-        """get_css_colors returns default gray for unknown alias."""
+        """get_css_colors returns default zinc for unknown alias."""
         from mutual_dissent.web.colors import get_css_colors
 
         colors = get_css_colors("unknown_model")
-        assert "gray" in colors["border"]
+        assert "zinc" in colors["border"]

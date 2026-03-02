@@ -87,7 +87,7 @@ def _render_defaults_section(state: dict[str, Any]) -> None:
     alias_options = list(DEFAULT_MODEL_ALIASES_V2.keys())
 
     with ui.expansion("Debate Defaults", icon="tune").classes("w-full"):
-        with ui.column().classes("gap-4 p-4 w-full"):
+        with ui.card().classes("w-full p-6 bg-zinc-900 border border-zinc-700"):
             ui.select(
                 label="Panel models",
                 options=alias_options,
@@ -118,7 +118,7 @@ def _render_providers_section(state: dict[str, Any]) -> None:
             ``provider_sources``.
     """
     with ui.expansion("Provider API Keys", icon="key").classes("w-full"):
-        with ui.column().classes("gap-3 p-4 w-full"):
+        with ui.card().classes("w-full p-6 bg-zinc-900 border border-zinc-700"):
             for provider in _PROVIDERS:
                 env_var = _PROVIDER_ENV_MAP.get(provider, "")
                 source = state["provider_sources"].get(provider, "none")
@@ -127,9 +127,9 @@ def _render_providers_section(state: dict[str, Any]) -> None:
                 with ui.row().classes("items-center gap-2 w-full"):
                     # Status icon
                     if has_key:
-                        ui.icon("check_circle").classes("text-green-500")
+                        ui.icon("check_circle").classes("text-emerald-400")
                     else:
-                        ui.icon("cancel").classes("text-red-500")
+                        ui.icon("cancel").classes("text-red-400")
 
                     if source == "env":
                         # Read-only: key from environment variable
@@ -181,14 +181,14 @@ def _render_routing_section(state: dict[str, Any]) -> None:
     override_options = ["(use default)"] + _ROUTING_MODES
 
     with ui.expansion("Routing Mode", icon="alt_route").classes("w-full"):
-        with ui.column().classes("gap-4 p-4 w-full"):
+        with ui.card().classes("w-full p-6 bg-zinc-900 border border-zinc-700"):
             ui.select(
                 label="Default routing mode",
                 options=_ROUTING_MODES,
             ).bind_value(state["routing"], "default_mode").props("outlined dense").classes("w-full")
 
             ui.separator()
-            ui.label("Per-model overrides").classes("text-sm text-gray-400")
+            ui.label("Per-model overrides").classes("text-sm text-zinc-400")
 
             for alias in alias_keys:
                 current = state["routing"].get(alias, "(use default)")
@@ -213,7 +213,7 @@ def _render_aliases_section(state: dict[str, Any]) -> None:
         state: Mutable form state dict with key ``aliases``.
     """
     with ui.expansion("Model Aliases", icon="label").classes("w-full"):
-        with ui.column().classes("gap-2 p-4 w-full"):
+        with ui.card().classes("w-full p-6 bg-zinc-900 border border-zinc-700"):
             # Header row
             with ui.row().classes("items-center gap-2 w-full"):
                 ui.label("Alias").classes("w-24 font-bold text-sm")
@@ -456,17 +456,17 @@ async def _handle_test_providers(
             if error:
                 latency_str = "\u2014"
                 status_icon = "cancel"
-                status_class = "text-red-500"
+                status_class = "text-red-400"
             else:
                 latency_str = f"{latency_ms / 1000:.1f}s" if latency_ms is not None else "\u2014"
                 status_icon = "check_circle"
-                status_class = "text-green-500"
+                status_class = "text-emerald-400"
 
             with ui.row().classes("items-center gap-4 w-full"):
                 ui.label(alias).classes("w-20 font-mono")
                 ui.label(vendor_str).classes("w-24")
                 ui.label(route_str).classes("w-24")
-                ui.label(model_id).classes("flex-grow text-gray-400 text-sm")
+                ui.label(model_id).classes("flex-grow text-zinc-400 text-sm")
                 ui.label(latency_str).classes("w-16 text-right")
                 ui.icon(status_icon).classes(status_class)
 
@@ -499,12 +499,12 @@ def render() -> None:
                 "Save",
                 icon="save",
                 on_click=lambda: _handle_save(state),
-            ).props("color=primary")
+            ).props("color=emerald")
             ui.button(
                 "Test Providers",
                 icon="science",
                 on_click=lambda: _handle_test_providers(state, test_results),
-            ).props("color=secondary outlined")
+            ).props("outline color=emerald")
 
         # Results container placed after buttons — the lambda captures the
         # variable name, and by the time the user clicks, it's assigned.

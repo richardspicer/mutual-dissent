@@ -78,7 +78,7 @@ def _build_filter_panel() -> _FilterControls:
     controls.query_input = (
         ui.input(label="Search query", placeholder="Filter by query text...")
         .classes("w-full font-mono text-sm")
-        .props("outlined dark dense clearable")
+        .props("outlined dense clearable")
     )
 
     controls.model_select = (
@@ -89,29 +89,29 @@ def _build_filter_panel() -> _FilterControls:
             value=[],
         )
         .classes("w-full font-mono text-sm")
-        .props("outlined dark dense")
+        .props("outlined dense")
     )
 
     with ui.row().classes("w-full gap-2"):
         controls.date_from = (
             ui.input(label="From date", placeholder="YYYY-MM-DD")
             .classes("flex-1 font-mono text-sm")
-            .props("outlined dark dense clearable")
+            .props("outlined dense clearable")
         )
         controls.date_to = (
             ui.input(label="To date", placeholder="YYYY-MM-DD")
             .classes("flex-1 font-mono text-sm")
-            .props("outlined dark dense clearable")
+            .props("outlined dense clearable")
         )
 
     controls.experiment_input = (
         ui.input(label="Experiment ID", placeholder="e.g. EXP-001")
         .classes("w-full font-mono text-sm")
-        .props("outlined dark dense clearable")
+        .props("outlined dense clearable")
     )
 
-    ui.separator()
-    ui.label("Sort").classes("font-mono text-sm text-gray-400")
+    ui.separator().classes("border-zinc-700")
+    ui.label("Sort").classes("font-mono text-sm text-zinc-400")
 
     controls.sort_select = (
         ui.select(
@@ -120,12 +120,12 @@ def _build_filter_panel() -> _FilterControls:
             label="Sort by",
         )
         .classes("w-full font-mono text-sm")
-        .props("outlined dark dense")
+        .props("outlined dense")
     )
     controls.sort_desc = ui.switch("Descending", value=True).classes("font-mono text-xs")
 
-    ui.separator()
-    ui.label("Export").classes("font-mono text-sm text-gray-400")
+    ui.separator().classes("border-zinc-700")
+    ui.label("Export").classes("font-mono text-sm text-zinc-400")
 
     with ui.row().classes("w-full gap-2"):
         controls.export_json_btn = (
@@ -135,8 +135,8 @@ def _build_filter_panel() -> _FilterControls:
             ui.button("CSV", icon="download").classes("flex-1").props("outline dense")
         )
 
-    ui.separator()
-    controls.summary_label = ui.label("").classes("text-xs text-gray-500 font-mono")
+    ui.separator().classes("border-zinc-700")
+    controls.summary_label = ui.label("").classes("text-xs text-zinc-500 font-mono")
 
     return controls
 
@@ -219,23 +219,23 @@ def _render_detail(
         with ui.expansion("Transcript", value=True).classes("w-full"):
             render_transcript(transcript, show_diff=False)
 
-        ui.separator().classes("my-4")
-        ui.label("Analytics").classes("font-bold text-lg text-gray-300")
+        ui.separator().classes("my-4 border-zinc-700")
+        ui.label("Analytics").classes("font-bold text-lg text-zinc-300")
 
         with ui.row().classes("w-full gap-4"):
             with ui.column().classes("flex-1"):
-                ui.label("Convergence").classes("font-mono text-sm text-gray-400")
+                ui.label("Convergence").classes("font-mono text-sm text-zinc-400")
                 render_convergence_chart(transcript)
 
             with ui.column().classes("flex-1"):
-                ui.label("Cost Breakdown").classes("font-mono text-sm text-gray-400")
+                ui.label("Cost Breakdown").classes("font-mono text-sm text-zinc-400")
                 render_per_debate_chart(transcript)
 
-        ui.label("Influence").classes("font-mono text-sm text-gray-400 mt-4")
+        ui.label("Influence").classes("font-mono text-sm text-zinc-400 mt-4")
         render_influence_heatmap([transcript])
 
-        ui.separator().classes("my-4")
-        ui.label("Cumulative Cost (All Transcripts)").classes("font-mono text-sm text-gray-400")
+        ui.separator().classes("my-4 border-zinc-700")
+        ui.label("Cumulative Cost (All Transcripts)").classes("font-mono text-sm text-zinc-400")
         render_cumulative_chart(ds.all_summaries)
 
 
@@ -252,10 +252,13 @@ def render() -> None:
 
     with ui.row().classes("w-full h-full gap-0"):
         with ui.column().classes(
-            "w-1/4 min-w-[260px] max-w-[340px] p-4 bg-gray-900 "
-            "border-r border-gray-700 gap-3 h-[calc(100vh-120px)] overflow-y-auto"
+            "w-1/4 min-w-[260px] max-w-[340px] p-4 bg-zinc-900 "
+            "border-r border-zinc-700 gap-3 h-[calc(100vh-120px)] overflow-y-auto"
         ):
-            controls = _build_filter_panel()
+            with ui.card().classes(
+                "w-full h-full p-6 bg-zinc-900 border border-zinc-700 rounded-2xl"
+            ):
+                controls = _build_filter_panel()
 
         right_panel = ui.column().classes("flex-1 p-6 gap-4 h-[calc(100vh-120px)] overflow-y-auto")
 
@@ -270,7 +273,7 @@ def render() -> None:
         with right_panel:
             if not filtered:
                 ui.label("No transcripts match the current filters.").classes(
-                    "text-gray-500 font-mono"
+                    "text-zinc-500 font-mono"
                 )
                 return
 
@@ -288,7 +291,7 @@ def render() -> None:
                     selection="single",
                 )
                 .classes("w-full")
-                .props("dark dense flat")
+                .props("dense flat")
             )
 
             def on_select(e: Any) -> None:

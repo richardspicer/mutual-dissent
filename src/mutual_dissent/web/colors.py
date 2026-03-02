@@ -8,7 +8,7 @@ but uses Tailwind class names instead of Rich color names.
 from __future__ import annotations
 
 # Rich name → Tailwind CSS class mapping.
-# claude=magenta→fuchsia, gpt=green, gemini=cyan, grok=yellow.
+# claude=magenta→fuchsia, gpt=emerald, gemini=cyan, grok=amber.
 MODEL_CSS_COLORS: dict[str, dict[str, str]] = {
     "claude": {
         "border": "border-fuchsia-500",
@@ -16,9 +16,9 @@ MODEL_CSS_COLORS: dict[str, dict[str, str]] = {
         "bg": "bg-fuchsia-500/10",
     },
     "gpt": {
-        "border": "border-green-500",
-        "text": "text-green-400",
-        "bg": "bg-green-500/10",
+        "border": "border-emerald-500",
+        "text": "text-emerald-400",
+        "bg": "bg-emerald-500/10",
     },
     "gemini": {
         "border": "border-cyan-500",
@@ -26,16 +26,16 @@ MODEL_CSS_COLORS: dict[str, dict[str, str]] = {
         "bg": "bg-cyan-500/10",
     },
     "grok": {
-        "border": "border-yellow-500",
-        "text": "text-yellow-400",
-        "bg": "bg-yellow-500/10",
+        "border": "border-amber-500",
+        "text": "text-amber-400",
+        "bg": "bg-amber-500/10",
     },
 }
 
 _DEFAULT_CSS_COLORS: dict[str, str] = {
-    "border": "border-gray-500",
-    "text": "text-gray-400",
-    "bg": "bg-gray-500/10",
+    "border": "border-zinc-500",
+    "text": "text-zinc-400",
+    "bg": "bg-zinc-500/10",
 }
 
 

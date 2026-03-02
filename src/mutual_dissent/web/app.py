@@ -47,4 +47,5 @@ def create_app(*, host: str = "127.0.0.1", port: int = 8080, show: bool = True) 
         dark=True,
         show=show,
         reload=False,
+        tailwind=True,
     )

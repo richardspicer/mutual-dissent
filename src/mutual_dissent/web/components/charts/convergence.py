@@ -89,11 +89,11 @@ def compute_convergence(transcript: DebateTranscript) -> dict[str, Any]:
 # ECharts hex colors matching MODEL_CSS_COLORS from web/colors.py.
 _ECHART_COLORS: dict[str, str] = {
     "claude": "#d946ef",  # fuchsia-500
-    "gpt": "#22c55e",  # green-500
+    "gpt": "#22c55e",  # emerald-500
     "gemini": "#06b6d4",  # cyan-500
-    "grok": "#eab308",  # yellow-500
+    "grok": "#eab308",  # amber-500
 }
-_DEFAULT_COLOR = "#6b7280"  # gray-500
+_DEFAULT_COLOR = "#71717a"  # zinc-500
 
 
 def render_convergence_chart(transcript: DebateTranscript) -> None:
@@ -107,7 +107,7 @@ def render_convergence_chart(transcript: DebateTranscript) -> None:
     data = compute_convergence(transcript)
 
     if not data["rounds"]:
-        ui.label("Not enough rounds for convergence chart.").classes("text-gray-500 italic")
+        ui.label("Not enough rounds for convergence chart.").classes("text-zinc-500 italic")
         return
 
     series = []
@@ -124,19 +124,19 @@ def render_convergence_chart(transcript: DebateTranscript) -> None:
     ui.echart(
         {
             "tooltip": {"trigger": "axis"},
-            "legend": {"data": data["models"], "textStyle": {"color": "#9ca3af"}},
+            "legend": {"data": data["models"], "textStyle": {"color": "#a1a1aa"}},
             "xAxis": {
                 "type": "category",
                 "data": data["rounds"],
-                "axisLabel": {"color": "#9ca3af"},
+                "axisLabel": {"color": "#a1a1aa"},
             },
             "yAxis": {
                 "type": "value",
                 "name": "Change Ratio",
                 "min": 0,
                 "max": 1,
-                "axisLabel": {"color": "#9ca3af"},
-                "nameTextStyle": {"color": "#9ca3af"},
+                "axisLabel": {"color": "#a1a1aa"},
+                "nameTextStyle": {"color": "#a1a1aa"},
             },
             "series": series,
         }
