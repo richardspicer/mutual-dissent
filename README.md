@@ -33,6 +33,10 @@ uv sync
 ## Usage
 
 ```bash
+# Run a debate
+dissent ask "Your query here"
+
+# With explicit panel and options
 dissent ask "Your query here" --synthesizer claude --rounds 2 --panel claude,gpt,gemini
 dissent ask "Summarize this" --file report.pdf
 dissent replay <transcript-id> --synthesizer grok
@@ -56,6 +60,12 @@ dissent config test
 ## Research Platform
 
 Full debate transcripts are logged as structured JSON for research — disagreement patterns, convergence dynamics, consensus poisoning, and hallucination detection. See [Research Methodology](https://docs.mutual-dissent.dev) for details.
+
+## Documentation
+
+- [docs.mutual-dissent.dev](https://docs.mutual-dissent.dev) — Full documentation
+- [Roadmap](docs/Roadmap.md) — Vision and development history
+- [Contributing](CONTRIBUTING.md) — Development setup and workflow
 
 ## License
 

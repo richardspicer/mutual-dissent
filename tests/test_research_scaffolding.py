@@ -1,4 +1,4 @@
-"""Tests for cross-tool research scaffolding (Phase 3 prerequisites).
+"""Tests for cross-tool research scaffolding (integration prerequisites).
 
 Covers: RoutedRequest.context field, ExperimentMetadata dataclass,
 per-panelist context injection, round-level event hook, experiment

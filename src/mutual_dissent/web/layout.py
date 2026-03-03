@@ -47,4 +47,4 @@ def create_layout() -> None:
     with ui.footer().classes(
         "bg-zinc-950 border-t border-zinc-800 text-zinc-500 text-xs py-3 px-6"
     ):
-        ui.label("Phase 3 \u2022 Cross-vendor AI debate engine").classes("font-mono")
+        ui.label("Cross-vendor AI debate engine").classes("font-mono")
