@@ -5,6 +5,75 @@ description: Browse and inspect saved transcripts
 
 # dissent list / show
 
-{/* Content to be written — usage, flags, examples, output */}
+## dissent list
 
-<Info>This page is coming soon.</Info>
+List saved debate transcripts, most recent first.
+
+### Usage
+
+```bash
+dissent list [OPTIONS]
+```
+
+### Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--limit` | `20` | Maximum transcripts to show |
+
+### Output
+
+Displays a table with transcript ID (first 8 characters), date, panel composition, synthesizer, token count, cost, and a truncated query preview.
+
+### Example
+
+```bash
+dissent list
+dissent list --limit 50
+```
+
+---
+
+## dissent show
+
+Display a saved debate transcript by ID.
+
+### Usage
+
+```bash
+dissent show TRANSCRIPT_ID [OPTIONS]
+```
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `TRANSCRIPT_ID` | Full UUID or prefix (minimum 4 characters) |
+
+### Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--verbose` | off | Show all rounds, not just synthesis |
+| `--output` | `terminal` | Output format: `terminal`, `json`, `markdown` |
+| `--file PATH` | — | Write output to file instead of stdout |
+
+### Examples
+
+```bash
+# Show synthesis only
+dissent show abcd1234
+
+# Show all rounds
+dissent show abcd1234 --verbose
+
+# Export as JSON
+dissent show abcd1234 --output json
+
+# Export full transcript to markdown file
+dissent show abcd1234 --verbose --output markdown --file debate.md
+```
+
+### Notes
+
+Transcripts are stored at `~/.mutual-dissent/transcripts/` as `YYYY-MM-DD_shortid.json`. Partial ID matching works on the short ID embedded in the filename — the prefix must be at least 4 characters. If multiple transcripts match, use a longer prefix.

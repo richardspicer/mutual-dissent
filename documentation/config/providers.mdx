@@ -5,6 +5,50 @@ description: Configure API keys for Anthropic, OpenAI, Google, xAI, Groq, and Op
 
 # Providers
 
-{/* Content to be written — provider setup, API keys, capabilities */}
+## Supported Providers
 
-<Info>This page is coming soon.</Info>
+| Provider | Vendor key | Models served |
+|----------|-----------|---------------|
+| OpenRouter | `openrouter` | All default panel models via unified API |
+| Anthropic | `anthropic` | `claude` (direct) |
+| OpenAI | `openai` | `gpt` (via OpenRouter until direct provider is implemented) |
+| Google | `google` | `gemini` (via OpenRouter) |
+| xAI | `xai` | `grok` (via OpenRouter) |
+| Groq | `groq` | Open-weight models via OpenRouter |
+
+## OpenRouter
+
+[OpenRouter](https://openrouter.ai) is the universal fallback. A single `OPENROUTER_API_KEY` is enough to run the full default panel. All four default models (`claude`, `gpt`, `gemini`, `grok`) are available through OpenRouter.
+
+```bash
+export OPENROUTER_API_KEY=sk-or-...
+```
+
+Or in `config.toml`:
+
+```toml
+[providers]
+openrouter_api_key = "sk-or-..."
+```
+
+## Anthropic Direct
+
+The Anthropic direct provider bypasses OpenRouter for `claude` calls, reducing latency and avoiding OpenRouter markup. Set `ANTHROPIC_API_KEY` (or `anthropic_api_key` in `[providers]`). In `auto` routing mode, direct is used automatically when the key is present.
+
+```toml
+[providers]
+openrouter_api_key = "sk-or-..."
+anthropic_api_key = "sk-ant-..."
+```
+
+## Other Vendors
+
+Direct provider implementations for OpenAI, Google, xAI, and Groq are planned. Until implemented, setting their API keys has no effect on routing — requests for those models always go through OpenRouter.
+
+## Verifying Provider Setup
+
+```bash
+dissent config test
+```
+
+Shows which provider handled each model and whether the call succeeded.

@@ -5,6 +5,60 @@ description: Manage providers, routing, and defaults
 
 # dissent config
 
-{/* Content to be written — usage, flags, examples, output */}
+Subcommands for viewing and testing provider configuration.
 
-<Info>This page is coming soon.</Info>
+## dissent config path
+
+Print the path to the active configuration file.
+
+```bash
+dissent config path
+# ~/.mutual-dissent/config.toml
+```
+
+---
+
+## dissent config show
+
+Display the effective configuration — resolved API keys (masked), model aliases, routing mode per model, and current defaults.
+
+```bash
+dissent config show [OPTIONS]
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--check-models` | off | Fetch context window sizes from OpenRouter (requires network) |
+
+```bash
+dissent config show
+dissent config show --check-models
+```
+
+---
+
+## dissent config test
+
+Send a minimal test prompt (`"Say OK"`) to each model in the default panel and synthesizer. Reports routing decisions, provider used, latency, and any errors.
+
+```bash
+dissent config test
+```
+
+Exits with code 0 if all models respond successfully. Exits with code 1 if any model fails — useful in CI or setup validation scripts.
+
+### Example output
+
+```
+Model     Vendor      Via          Latency   Status
+claude    anthropic   direct       312ms     ✓ OK
+gpt       openai      openrouter   891ms     ✓ OK
+gemini    google      openrouter   654ms     ✓ OK
+grok      xai         openrouter   743ms     ✓ OK
+```
+
+## Notes
+
+- Configuration is loaded from `~/.mutual-dissent/config.toml` with environment variable overrides applied last
+- See [Environment Variables](/config/environment-variables) for the full override list
+- See [TOML Reference](/config/toml-reference) for the full file schema

@@ -5,6 +5,54 @@ description: System architecture and data flow
 
 # Architecture Overview
 
-{/* Content to be written — high-level diagram, component relationships, data flow */}
+## Components
 
-<Info>This page is coming soon.</Info>
+```
+CLI / Web UI
+     │
+     ▼
+Orchestrator  ──────────────────────────────────────────────┐
+     │                                                       │
+     │  run_debate() / run_replay()                         │
+     ▼                                                       │
+ProviderRouter                                               │
+  ├── AnthropicProvider  (direct)                           │
+  └── OpenRouterProvider (universal fallback)               │
+                                                            │
+     ┌──────────────────────────────────────────────────────┘
+     ▼
+DebateTranscript  →  transcript.py  →  ~/.mutual-dissent/transcripts/
+```
+
+## Data Flow
+
+1. **CLI or Web UI** calls `run_debate(query, config)` with optional panel, synthesizer, rounds overrides
+2. **Orchestrator** resolves defaults, initializes a `DebateTranscript`, and opens a `ProviderRouter` context
+3. **Initial round** — orchestrator fans out `format_initial(query)` to all panel models in parallel via `complete_parallel()`
+4. **Reflection rounds** — for each round, each model receives `format_reflection(query, own_response, others_responses)`; all models run in parallel
+5. **Synthesis** — the designated synthesizer receives the full formatted transcript via `format_synthesis()`
+6. **Scoring** — if `ground_truth` is provided, the synthesizer scores its own output as judge
+7. **Stats** — token counts, per-model costs (from OpenRouter pricing API), and routing decisions are aggregated into `metadata.stats`
+8. **Transcript** — the completed `DebateTranscript` is serialized to JSON and saved to disk
+
+## Key Modules
+
+| Module | Responsibility |
+|--------|---------------|
+| `orchestrator.py` | Debate lifecycle, round management, parallel dispatch |
+| `providers/router.py` | Routing decisions, provider selection, fan-out |
+| `providers/anthropic.py` | Direct Anthropic API client |
+| `providers/openrouter.py` | OpenRouter API client |
+| `config.py` | Configuration loading, alias resolution, key management |
+| `models.py` | `DebateTranscript`, `DebateRound`, `ModelResponse`, `ExperimentMetadata` |
+| `types.py` | `Vendor`, `RoutingDecision`, `RoutedRequest` |
+| `transcript.py` | JSON serialization, file storage, listing, loading |
+| `cli.py` | Click command group, output formatting dispatch |
+| `web/app.py` | NiceGUI application entry point |
+| `prompts.py` | Prompt templates for initial, reflection, and synthesis rounds |
+| `scoring.py` | Ground-truth scoring via judge model |
+| `pricing.py` | OpenRouter pricing cache, cost computation |
+
+## Async Model
+
+The orchestrator and provider layer are fully async. All model calls within a single round execute concurrently via `asyncio.gather`. The CLI runs the event loop with `asyncio.run()`. The web UI uses NiceGUI's async event loop.

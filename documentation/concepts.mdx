@@ -5,6 +5,54 @@ description: Fan-out, reflection, synthesis — how multi-model debates work
 
 # Core Concepts
 
-{/* Content to be written — debate flow, panels, rounds, synthesis, transcripts */}
+## Panel
 
-<Info>This page is coming soon.</Info>
+The panel is the set of models that participate in a debate. The default panel is `claude`, `gpt`, `gemini`, and `grok`. Each alias maps to a specific model:
+
+| Alias | Model |
+|-------|-------|
+| `claude` | anthropic/claude-sonnet-4.5 |
+| `gpt` | openai/gpt-5.2 |
+| `gemini` | google/gemini-2.5-pro |
+| `grok` | x-ai/grok-4 |
+
+You can pass any subset of aliases or full OpenRouter model IDs to `--panel`.
+
+## Rounds
+
+A debate runs in rounds. Round 0 is the **initial round** — every panel model receives the query and responds independently. Rounds 1+ are **reflection rounds** — each model sees its own previous response and all other models' previous responses, then reflects and refines.
+
+The default is 1 reflection round. The maximum is 3. More rounds increase cost and latency but can surface deeper disagreements.
+
+## Synthesis
+
+After all reflection rounds complete, the **synthesizer** model receives the full debate transcript and distills it into a final answer. The synthesizer defaults to `claude` but can be any model alias. The synthesizer participates in the debate panel as well unless excluded explicitly.
+
+## Transcripts
+
+Every debate produces a `DebateTranscript` — a complete structured record saved as JSON to `~/.mutual-dissent/transcripts/`. Filename format: `YYYY-MM-DD_shortid.json`.
+
+Each transcript includes:
+- The original query
+- Panel composition and synthesizer
+- All rounds with per-model responses, token counts, latency, and routing decisions
+- The synthesized final answer
+- Aggregate stats: total tokens, per-model cost breakdown, total cost in USD
+
+## Roles
+
+Each `ModelResponse` carries a `role` field:
+
+| Role | Round number | Description |
+|------|-------------|-------------|
+| `initial` | 0 | First response to the query |
+| `reflection` | 1+ | Response after seeing others' answers |
+| `synthesis` | -1 | Final synthesized answer |
+
+## Ground Truth Scoring
+
+Pass `--ground-truth` to score the synthesis against a known-correct reference answer. The synthesizer model acts as judge and produces a score attached to the transcript's metadata. This adds one API call.
+
+## Panelist Context
+
+The Python API supports per-panelist context injection via `panelist_context` — a dict mapping model alias to a context string prepended to that model's prompts in every round. Used for RAG augmentation and cross-tool research experiments (CounterSignal payload injection, CounterAgent findings).

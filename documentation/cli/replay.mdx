@@ -5,6 +5,57 @@ description: Re-run synthesis or add rounds to existing transcripts
 
 # dissent replay
 
-{/* Content to be written — usage, flags, examples, output */}
+Load an existing transcript and re-synthesize it — optionally with a different synthesizer or additional reflection rounds. Produces a new transcript; the original is never modified.
 
-<Info>This page is coming soon.</Info>
+## Usage
+
+```bash
+dissent replay TRANSCRIPT_ID [OPTIONS]
+```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `TRANSCRIPT_ID` | Full UUID or prefix (minimum 4 characters) |
+
+## Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--synthesizer` | original | Model alias override for synthesis |
+| `--rounds` | `0` | Additional reflection rounds to run before synthesis |
+| `--verbose` | off | Show all rounds, not just synthesis |
+| `--no-save` | off | Skip saving replay transcript to disk |
+| `--output` | `terminal` | Output format: `terminal`, `json`, `markdown` |
+| `--file PATH` | — | Write output to file instead of stdout |
+| `--ground-truth TEXT` | — | Reference answer to score synthesis against |
+| `--ground-truth-file PATH` | — | File containing reference answer |
+
+## Examples
+
+```bash
+# Re-synthesize with a different model
+dissent replay abcd1234 --synthesizer gpt
+
+# Add two more reflection rounds then synthesize
+dissent replay abcd1234 --rounds 2
+
+# Re-synthesize and score against a reference answer
+dissent replay abcd1234 --synthesizer claude --ground-truth "The correct answer is X"
+
+# Write replay output to markdown
+dissent replay abcd1234 --output markdown --file replay.md
+```
+
+## Modes
+
+**Re-synthesize only** (`--rounds 0`, the default): copies the source transcript's rounds unchanged and runs a fresh synthesis pass. Use this to compare how different synthesizers interpret the same debate.
+
+**Add rounds** (`--rounds N`): copies the source rounds, runs N additional reflection rounds continuing from the last round, then synthesizes. Each additional round costs one API call per panel model.
+
+## Notes
+
+- The new transcript links to the source via `metadata.source_transcript_id`
+- Partial IDs must be at least 4 characters; use `dissent list` to find IDs
+- `--rounds` counts *additional* rounds, not total rounds

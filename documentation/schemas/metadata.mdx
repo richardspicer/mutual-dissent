@@ -5,6 +5,97 @@ description: Stats, routing decisions, experiment tracking, and resolved config
 
 # Metadata
 
-{/* Content to be written — metadata fields, stats collection, experiment tagging */}
+`DebateTranscript.metadata` is a dict populated by the orchestrator after a debate completes. All keys are optional — their presence depends on how the debate was run.
 
-<Info>This page is coming soon.</Info>
+## stats
+
+Always present. Contains aggregate token and cost data.
+
+```json
+{
+  "total_tokens": 8432,
+  "total_cost_usd": 0.0124,
+  "per_model": {
+    "claude": {
+      "tokens": 2100,
+      "input_tokens": 320,
+      "output_tokens": 1780,
+      "calls": 2,
+      "cost_usd": 0.0031
+    },
+    "gpt": { "..." : "..." }
+  },
+  "convergence": {}
+}
+```
+
+`total_cost_usd` is `null` if pricing data was unavailable for any model. `convergence` is reserved for future analysis.
+
+## resolved_config
+
+Always present. Records the effective configuration for the debate — useful for reproducing results.
+
+```json
+{
+  "panel": ["claude", "gpt", "gemini", "grok"],
+  "synthesizer": "claude",
+  "rounds": 1,
+  "routing": { "default_mode": "auto", "claude": "direct" },
+  "providers": ["openrouter", "anthropic"]
+}
+```
+
+## scores
+
+Present when `--ground-truth` was used.
+
+```json
+{
+  "ground_truth": "The correct answer is X",
+  "judge_model": "claude",
+  "synthesis_score": {
+    "score": 0.87,
+    "reasoning": "..."
+  }
+}
+```
+
+## experiment
+
+Present when `ExperimentMetadata` is attached via the Python API. Used to link debates to research experiments across CounterSignal and CounterAgent.
+
+```json
+{
+  "experiment_id": "study-2-run-001",
+  "source_tool": "countersignal",
+  "campaign_id": "cs-campaign-abc",
+  "condition": "payload injected via IPI",
+  "variables": { "technique": "unicode_tag", "model": "claude" },
+  "finding_ref": "MD-003"
+}
+```
+
+## panelist_context
+
+Present when per-panelist context was injected via the Python API.
+
+```json
+{
+  "claude": "CONTEXT: [injected payload text]",
+  "gpt": "CONTEXT: [different payload text]"
+}
+```
+
+## source_transcript_id / replay_config
+
+Present on replay transcripts only.
+
+```json
+{
+  "source_transcript_id": "a1b2c3d4-...",
+  "replay_config": {
+    "synthesizer_override": "gpt",
+    "additional_rounds": 2
+  }
+}
+```

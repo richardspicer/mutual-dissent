@@ -5,6 +5,58 @@ description: Control how models are routed — auto, direct, or OpenRouter
 
 # Routing
 
-{/* Content to be written — routing modes, configuration, fallback behavior */}
+## Routing Modes
 
-<Info>This page is coming soon.</Info>
+Each model alias can be assigned one of three routing modes:
+
+| Mode | Behavior |
+|------|----------|
+| `auto` | Use direct provider if a key and implementation are available; fall back to OpenRouter |
+| `direct` | Force direct provider; fall back to OpenRouter with a warning if unavailable |
+| `openrouter` | Always route through OpenRouter regardless of available keys |
+
+The default mode is `auto`.
+
+## Configuration
+
+Set `default_mode` to apply a mode to all models, then override per-alias as needed:
+
+```toml
+[routing]
+default_mode = "auto"
+claude = "direct"
+gpt = "openrouter"
+```
+
+## Auto Mode (Default)
+
+In `auto` mode, the router checks whether a direct provider implementation exists for the model's vendor and whether an API key is configured for that vendor. If both are true, the request goes direct. Otherwise it falls back to OpenRouter.
+
+Currently, Anthropic is the only vendor with a direct provider implementation. So in `auto` mode:
+- `claude` → direct Anthropic API (if `ANTHROPIC_API_KEY` is set), otherwise OpenRouter
+- `gpt`, `gemini`, `grok` → OpenRouter
+
+## Per-Alias Routing
+
+Override routing for specific models:
+
+```toml
+[routing]
+default_mode = "auto"
+claude = "direct"      # Force direct even if OpenRouter key is also present
+gpt = "openrouter"     # Always use OpenRouter even if a direct key exists
+```
+
+## Routing Decisions in Transcripts
+
+Every `ModelResponse` includes a `routing` field that records the vendor, mode, and whether OpenRouter was used for that specific call. Use this to audit which provider handled each response.
+
+```json
+{
+  "routing": {
+    "vendor": "anthropic",
+    "mode": "auto",
+    "via_openrouter": false
+  }
+}
+```

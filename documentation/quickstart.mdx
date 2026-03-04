@@ -5,6 +5,74 @@ description: Install Mutual Dissent and run your first multi-model debate in und
 
 # Quickstart
 
-{/* Content to be written — install, configure API key, run first debate, read transcript */}
+## Install
 
-<Info>This page is coming soon.</Info>
+```bash
+pip install mutual-dissent
+```
+
+Or from source:
+
+```bash
+git clone https://github.com/q-uestionable-AI/mutual-dissent.git
+cd mutual-dissent
+uv sync
+```
+
+## Configure an API Key
+
+Mutual Dissent routes all models through [OpenRouter](https://openrouter.ai) by default. Set your key:
+
+```bash
+export OPENROUTER_API_KEY=sk-or-...
+```
+
+Or add it to `~/.mutual-dissent/config.toml`:
+
+```toml
+[providers]
+openrouter_api_key = "sk-or-..."
+```
+
+Verify your setup:
+
+```bash
+dissent config test
+```
+
+## Run Your First Debate
+
+```bash
+dissent ask "What are the security implications of MCP tool poisoning?"
+```
+
+Mutual Dissent fans out to Claude, GPT, Gemini, and Grok, runs one reflection round, and prints the synthesized answer.
+
+## Customize the Panel
+
+```bash
+# Two-model debate with extra reflection
+dissent ask "Is Rust safer than C?" --panel claude,gpt --rounds 2
+
+# Different synthesizer
+dissent ask "Explain zero-knowledge proofs" --synthesizer gemini
+
+# Show all rounds, not just synthesis
+dissent ask "Compare REST vs GraphQL" --verbose
+```
+
+## Browse Saved Transcripts
+
+Every debate is saved to `~/.mutual-dissent/transcripts/` automatically.
+
+```bash
+dissent list              # Show recent transcripts
+dissent show abcd1234     # View a specific transcript by ID prefix
+dissent replay abcd1234   # Re-synthesize with a different model
+```
+
+## Next Steps
+
+- [Core Concepts](/concepts) — understand panels, rounds, and synthesis
+- [CLI Reference](/cli/ask) — full flag documentation
+- [Configuration](/config/providers) — direct vendor APIs, routing, and defaults

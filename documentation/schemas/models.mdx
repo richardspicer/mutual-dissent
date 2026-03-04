@@ -1,10 +1,100 @@
 ---
 title: Model Types
-description: ModelResponse, DebateRound, and related data structures
+description: ModelResponse, DebateRound, DebateTranscript, and related data structures
 ---
 
 # Model Types
 
-{/* Content to be written — dataclass definitions, field descriptions, relationships */}
+All types are defined in `mutual_dissent.models` and `mutual_dissent.types`. Every type is JSON-serializable via `.to_dict()`.
 
-<Info>This page is coming soon.</Info>
+## DebateTranscript
+
+The complete record of a debate session.
+
+```python
+from mutual_dissent.models import DebateTranscript
+
+transcript.transcript_id    # str — UUID4
+transcript.short_id         # str — first 8 characters of transcript_id
+transcript.query            # str — original user query
+transcript.panel            # list[str] — model aliases
+transcript.synthesizer_id   # str — alias of synthesis model
+transcript.max_rounds       # int — configured reflection round count
+transcript.rounds           # list[DebateRound]
+transcript.synthesis        # ModelResponse | None
+transcript.created_at       # datetime (UTC)
+transcript.metadata         # dict[str, Any]
+```
+
+## DebateRound
+
+All responses from one round.
+
+```python
+round.round_number   # int — 0=initial, 1+=reflection
+round.round_type     # str — "initial", "reflection", "synthesis"
+round.responses      # list[ModelResponse]
+```
+
+## ModelResponse
+
+One model's response in one round.
+
+```python
+response.model_id       # str — full OpenRouter or vendor model ID
+response.model_alias    # str — short alias (e.g. "claude")
+response.round_number   # int
+response.role           # str — "initial", "reflection", or "synthesis"
+response.content        # str — response text
+response.timestamp      # datetime (UTC)
+response.token_count    # int | None
+response.input_tokens   # int | None
+response.output_tokens  # int | None
+response.latency_ms     # int | None
+response.error          # str | None — set on failure, None on success
+response.routing        # dict | None — RoutingDecision serialized
+response.analysis       # dict — scoring metadata
+```
+
+## ExperimentMetadata
+
+Links a debate to a research experiment. Attached to `transcript.metadata["experiment"]`.
+
+```python
+from mutual_dissent.models import ExperimentMetadata
+
+meta = ExperimentMetadata(
+    experiment_id="study-2-run-001",
+    source_tool="countersignal",       # "countersignal", "counteragent", or "manual"
+    campaign_id="cs-campaign-abc",     # optional
+    condition="unicode tag injection",
+    variables={"technique": "unicode_tag", "target_model": "claude"},
+    finding_ref="MD-003",              # optional
+)
+```
+
+## RoutingDecision
+
+Records how a request was routed. Serialized into `ModelResponse.routing`.
+
+```python
+from mutual_dissent.types import RoutingDecision, Vendor
+
+decision.vendor           # Vendor enum — e.g. Vendor.ANTHROPIC
+decision.mode             # str — "auto", "direct", or "openrouter"
+decision.via_openrouter   # bool
+```
+
+## Vendor
+
+```python
+from mutual_dissent.types import Vendor
+
+Vendor.ANTHROPIC    # "anthropic"
+Vendor.OPENAI       # "openai"
+Vendor.GOOGLE       # "google"
+Vendor.XAI          # "xai"
+Vendor.GROQ         # "groq"
+Vendor.OPENROUTER   # "openrouter"
+Vendor.OLLAMA       # "ollama"
+```
