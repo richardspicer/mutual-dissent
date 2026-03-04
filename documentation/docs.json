@@ -25,7 +25,8 @@
         "pages": [
           "introduction",
           "quickstart",
-          "concepts"
+          "concepts",
+          "changelog"
         ]
       },
       {
