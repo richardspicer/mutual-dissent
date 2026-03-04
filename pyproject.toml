@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mutual-dissent"
-version = "0.1.0"
+version = "0.1.1"
 description = "Cross-vendor multi-model debate and consensus engine for AI response distillation"
 requires-python = ">=3.11"
 license = "MIT"
