@@ -16,6 +16,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.11"
 
       - name: Build sdist and wheel
         run: uv build
@@ -35,6 +37,7 @@ jobs:
       url: https://test.pypi.org/p/mutual-dissent
     permissions:
       id-token: write
+      actions: read
     steps:
       - name: Download dist artifacts
         uses: actions/download-artifact@v4
@@ -56,6 +59,7 @@ jobs:
       url: https://pypi.org/p/mutual-dissent
     permissions:
       id-token: write
+      actions: read
     steps:
       - name: Download dist artifacts
         uses: actions/download-artifact@v4
