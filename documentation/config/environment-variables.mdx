@@ -5,6 +5,50 @@ description: Environment variables for API keys and configuration
 
 # Environment Variables
 
-{/* Content to be written — all env vars, precedence, examples */}
+Environment variables are applied after `config.toml` and take precedence over file-based values.
 
-<Info>This page is coming soon.</Info>
+## API Keys
+
+| Variable | Provider |
+|----------|----------|
+| `OPENROUTER_API_KEY` | OpenRouter (universal fallback) |
+| `ANTHROPIC_API_KEY` | Anthropic direct API |
+| `OPENAI_API_KEY` | OpenAI direct API |
+| `GOOGLE_API_KEY` | Google direct API |
+| `XAI_API_KEY` | xAI direct API |
+| `GROQ_API_KEY` | Groq direct API |
+
+## Precedence
+
+For each provider, key resolution follows this order:
+
+1. Environment variable (highest priority)
+2. `[providers]` section in `~/.mutual-dissent/config.toml`
+3. Empty string — request will fail at runtime
+
+`OPENROUTER_API_KEY` also sets the top-level `api_key` field for backward compatibility.
+
+## Minimal Setup
+
+Only one key is required to run debates — `OPENROUTER_API_KEY` routes all four default models through OpenRouter:
+
+```bash
+export OPENROUTER_API_KEY=sk-or-...
+dissent ask "Your query here"
+```
+
+## Direct + Fallback
+
+Set both an OpenRouter key and a direct vendor key. The router uses direct when available (in `auto` mode) and falls back to OpenRouter for models without a direct provider:
+
+```bash
+export OPENROUTER_API_KEY=sk-or-...
+export ANTHROPIC_API_KEY=sk-ant-...
+```
+
+With this setup, `claude` calls go directly to the Anthropic API; `gpt`, `gemini`, and `grok` route through OpenRouter.
+
+## Notes
+
+- Direct provider implementations are currently available for Anthropic only. Other vendors route through OpenRouter regardless of key presence unless a direct provider is implemented.
+- See [Routing](/config/routing) for per-model routing control.

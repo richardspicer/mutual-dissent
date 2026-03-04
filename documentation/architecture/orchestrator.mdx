@@ -5,6 +5,73 @@ description: Debate orchestration — fan-out, reflection injection, synthesis
 
 # Orchestrator
 
-{/* Content to be written — orchestration pipeline, round management, error handling */}
+`mutual_dissent.orchestrator` is the core pipeline engine. It manages the full debate lifecycle and is the primary integration point for the Python API.
 
-<Info>This page is coming soon.</Info>
+## run_debate()
+
+```python
+async def run_debate(
+    query: str,
+    config: Config,
+    *,
+    panel: list[str] | None = None,
+    synthesizer: str | None = None,
+    rounds: int | None = None,
+    ground_truth: str | None = None,
+    panelist_context: dict[str, str] | None = None,
+    on_round_complete: Callable[[DebateRound], Awaitable[None]] | None = None,
+) -> DebateTranscript
+```
+
+Executes a complete debate: initial round → N reflection rounds → synthesis.
+
+All model calls within a single round run in parallel via `asyncio.gather`.
+
+### Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `query` | The user's question or prompt |
+| `config` | Loaded `Config` instance from `load_config()` |
+| `panel` | Model aliases or IDs; defaults to `config.default_panel` |
+| `synthesizer` | Model alias for synthesis; defaults to `config.default_synthesizer` |
+| `rounds` | Reflection rounds 1–3; defaults to `config.default_rounds`; capped at 3 |
+| `ground_truth` | Reference answer for scoring synthesis; adds one API call |
+| `panelist_context` | Per-panelist context strings prepended to prompts each round |
+| `on_round_complete` | Async callback fired after each round completes |
+
+### Round Hook
+
+`on_round_complete` receives a `DebateRound` after each round (initial, each reflection, synthesis). Exceptions in the callback are logged but do not abort the debate.
+
+```python
+async def my_hook(round: DebateRound) -> None:
+    print(f"Round {round.round_number} complete: {round.round_type}")
+
+transcript = await run_debate(query, config, on_round_complete=my_hook)
+```
+
+## run_replay()
+
+```python
+async def run_replay(
+    source: DebateTranscript,
+    config: Config,
+    *,
+    synthesizer: str | None = None,
+    additional_rounds: int = 0,
+    ground_truth: str | None = None,
+    panelist_context: dict[str, str] | None = None,
+    on_round_complete: ...,
+) -> DebateTranscript
+```
+
+Re-synthesizes an existing transcript. Produces a new transcript with a fresh ID; the source is never mutated. With `additional_rounds > 0`, runs new reflection rounds continuing from the source's last round before synthesizing.
+
+## Prompt Templates
+
+The orchestrator uses three prompt formats from `prompts.py`:
+
+- **Initial** — query only; models answer independently
+- **Reflection** — includes the model's own previous answer and all other models' previous answers; asks for critique and refinement
+- **Synthesis** — includes the full formatted debate transcript; asks for a distilled final answer

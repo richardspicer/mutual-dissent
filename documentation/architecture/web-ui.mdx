@@ -5,6 +5,32 @@ description: NiceGUI web interface architecture
 
 # Web UI
 
-{/* Content to be written — NiceGUI components, state management, real-time updates */}
+The web UI is a NiceGUI application started with `dissent serve`. It provides a browser-based interface for running debates, browsing transcripts, and managing configuration.
 
-<Info>This page is coming soon.</Info>
+## Starting the Server
+
+```bash
+dissent serve                          # localhost:8080, opens browser
+dissent serve --port 9000              # custom port
+dissent serve --host 0.0.0.0 --no-open  # all interfaces, no browser launch
+```
+
+## Pages
+
+**Debate view** — run debates from the browser. Each model's response streams in via WebSocket as it arrives. Synthesis appears after all reflection rounds complete.
+
+**Research dashboard** — browse saved transcripts from `~/.mutual-dissent/transcripts/`. Charts include convergence over rounds, per-model influence heatmap, and cost breakdown.
+
+**Config panel** — view and edit provider keys and routing configuration. Changes are written to `~/.mutual-dissent/config.toml`.
+
+## Known Limitations
+
+**Navigation kills running debates.** NiceGUI re-creates pages on route change, which destroys the current page and orphans the running asyncio task. If you navigate away during a debate, the results are lost. Stay on the debate page until synthesis completes.
+
+**Dashboard export is metadata only.** The JSON/CSV export from the research dashboard serializes the transcript index (summary metadata), not full debate transcripts. To export full transcripts, use `dissent show <id> --output json` from the CLI.
+
+**Influence heatmap label clipping.** Mid-range labels in the ECharts visualMap component may render behind the bar or be color-invisible. This is a known display bug.
+
+## Architecture
+
+The web application entry point is `mutual_dissent.web.app`. Pages are defined in `web/pages/`, reusable components in `web/components/`, and shared layout in `web/layout.py`. The color palette is defined in `web/colors.py`.

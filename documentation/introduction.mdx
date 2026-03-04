@@ -7,6 +7,36 @@ description: Cross-vendor multi-model debate and consensus engine for AI respons
 
 <img src="/dissent-demo.gif" alt="Mutual Dissent CLI demo" />
 
-{/* Content to be written — project overview, what it does, who it's for, differentiators */}
+Mutual Dissent sends a query to multiple AI models simultaneously, shares competing responses back to each model for reflection and critique, then synthesizes a final answer through a user-selected model.
 
-<Info>This documentation is under active development.</Info>
+## Why Cross-Vendor?
+
+Single-vendor multi-agent systems share training data, safety postures, and blind spots. Cross-vendor debate surfaces disagreements that correlated architectures can't — different training data, different failure modes, different priors.
+
+## The Debate Loop
+
+1. **Fan out** — the query goes to all panel models in parallel (Claude, GPT, Gemini, Grok by default)
+2. **Reflect** — each model sees the others' responses and argues back (1–3 rounds)
+3. **Synthesize** — a designated model distills the full debate into a final answer
+4. **Log** — the complete transcript is saved as structured JSON with cost and token data
+
+## As a Research Platform
+
+Every debate produces a structured JSON transcript. These transcripts support disagreement analysis, convergence dynamics, consensus poisoning research, and unanimous hallucination detection. The `--ground-truth` flag scores synthesis against a reference answer using a judge model.
+
+## Get Started
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="bolt" href="/quickstart">
+    Install and run your first debate in under 5 minutes
+  </Card>
+  <Card title="Core Concepts" icon="book" href="/concepts">
+    Panels, rounds, synthesis, and transcripts explained
+  </Card>
+  <Card title="CLI Reference" icon="terminal" href="/cli/ask">
+    Full command and flag reference
+  </Card>
+  <Card title="Configuration" icon="gear" href="/config/providers">
+    API keys, routing, and defaults
+  </Card>
+</CardGroup>

@@ -5,6 +5,51 @@ description: Provider abstraction layer and routing logic
 
 # Provider Layer
 
-{/* Content to be written — provider interface, routing strategies, OpenRouter integration */}
+## ProviderRouter
 
-<Info>This page is coming soon.</Info>
+`ProviderRouter` is the dispatch layer between the orchestrator and individual provider implementations. It is used as an async context manager.
+
+```python
+from mutual_dissent.config import load_config
+from mutual_dissent.providers.router import ProviderRouter
+
+config = load_config()
+async with ProviderRouter(config) as router:
+    response = await router.complete("claude", prompt="Hello")
+```
+
+On entry, the router opens connections to:
+- `OpenRouterProvider` if an OpenRouter key is configured
+- Direct providers for each vendor that has both an API key and a registered implementation
+
+On exit, all provider connections are closed concurrently.
+
+## Routing Decision
+
+`router.route(alias)` returns a `RoutingDecision` without making any API calls. This is used by `config test` to show routing before sending requests.
+
+```python
+decision = router.route("claude")
+# RoutingDecision(vendor=Vendor.ANTHROPIC, mode='auto', via_openrouter=False)
+```
+
+## complete() and complete_parallel()
+
+`complete()` routes and executes a single request. `complete_parallel()` fans out a list of requests concurrently via `asyncio.gather`. Both return `ModelResponse` objects — errors are captured in `response.error` rather than raised.
+
+## Provider Implementations
+
+| Vendor | Implementation | Status |
+|--------|---------------|--------|
+| Anthropic | `providers/anthropic.py` | ✅ Direct |
+| OpenAI | — | Via OpenRouter |
+| Google | — | Via OpenRouter |
+| xAI | — | Via OpenRouter |
+| Groq | — | Via OpenRouter |
+| OpenRouter | `providers/openrouter.py` | ✅ Universal fallback |
+
+All providers implement the `Provider` base class in `providers/base.py`.
+
+## Vendor Resolution
+
+The router maps model aliases and OpenRouter model IDs to vendors via their ID prefix (`anthropic/`, `openai/`, `google/`, `x-ai/`, `groq/`). Unknown prefixes fall back to `Vendor.OPENROUTER`.

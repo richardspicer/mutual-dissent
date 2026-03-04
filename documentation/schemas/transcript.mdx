@@ -5,6 +5,110 @@ description: JSON transcript format — full field reference with examples
 
 # Transcript Schema
 
-{/* Content to be written — JSON schema, field descriptions, examples */}
+Transcripts are saved as JSON to `~/.mutual-dissent/transcripts/YYYY-MM-DD_shortid.json`.
 
-<Info>This page is coming soon.</Info>
+## Top-Level Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `transcript_id` | string (UUID4) | Unique debate identifier |
+| `query` | string | Original user query |
+| `panel` | string[] | Model aliases that participated |
+| `synthesizer_id` | string | Model alias used for synthesis |
+| `max_rounds` | integer | Configured reflection round count |
+| `rounds` | DebateRound[] | All debate rounds in order |
+| `synthesis` | ModelResponse \| null | Final synthesized response |
+| `created_at` | string (ISO 8601) | Debate start time (UTC) |
+| `metadata` | object | Stats, routing config, experiment data |
+
+## DebateRound
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `round_number` | integer | 0 = initial, 1+ = reflection |
+| `round_type` | string | `"initial"`, `"reflection"`, or `"synthesis"` |
+| `responses` | ModelResponse[] | All model responses for this round |
+
+## ModelResponse
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `model_id` | string | Full OpenRouter or vendor model ID |
+| `model_alias` | string | Short alias (e.g. `"claude"`) |
+| `round_number` | integer | Round this response belongs to |
+| `role` | string | `"initial"`, `"reflection"`, or `"synthesis"` |
+| `content` | string | Full response text |
+| `timestamp` | string (ISO 8601) | When the response was received (UTC) |
+| `token_count` | integer \| null | Total tokens used |
+| `input_tokens` | integer \| null | Input/prompt tokens |
+| `output_tokens` | integer \| null | Output/completion tokens |
+| `latency_ms` | integer \| null | Response time in milliseconds |
+| `error` | string \| null | Error message if call failed; null on success |
+| `routing` | object \| null | Routing decision (see below) |
+| `analysis` | object | Scoring metadata (populated when `--ground-truth` is used) |
+
+### routing object
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `vendor` | string | Provider vendor (e.g. `"anthropic"`) |
+| `mode` | string | Routing mode in effect: `"auto"`, `"direct"`, `"openrouter"` |
+| `via_openrouter` | boolean | Whether OpenRouter handled this request |
+
+## metadata object
+
+| Key | Description |
+|-----|-------------|
+| `version` | Mutual Dissent version that produced the transcript |
+| `resolved_config` | Panel, synthesizer, rounds, routing, and provider keys active for this debate |
+| `stats` | Token totals, per-model breakdown with input/output split and cost, `total_cost_usd` |
+| `scores` | Ground-truth scoring results (present only if `--ground-truth` was used) |
+| `experiment` | `ExperimentMetadata` (present only if set via Python API) |
+| `panelist_context` | Per-panelist context strings (present only if set via Python API) |
+| `source_transcript_id` | ID of the source transcript (replay transcripts only) |
+| `replay_config` | Synthesizer override and additional rounds (replay transcripts only) |
+
+## Example
+
+```json
+{
+  "transcript_id": "a1b2c3d4-...",
+  "query": "What are the risks of agentic AI?",
+  "panel": ["claude", "gpt", "gemini", "grok"],
+  "synthesizer_id": "claude",
+  "max_rounds": 1,
+  "rounds": [
+    {
+      "round_number": 0,
+      "round_type": "initial",
+      "responses": [
+        {
+          "model_id": "anthropic/claude-sonnet-4.5",
+          "model_alias": "claude",
+          "round_number": 0,
+          "role": "initial",
+          "content": "...",
+          "timestamp": "2026-03-04T14:00:00+00:00",
+          "token_count": 412,
+          "input_tokens": 28,
+          "output_tokens": 384,
+          "latency_ms": 1243,
+          "error": null,
+          "routing": { "vendor": "anthropic", "mode": "auto", "via_openrouter": false },
+          "analysis": {}
+        }
+      ]
+    }
+  ],
+  "synthesis": { "role": "synthesis", "round_number": -1, "..." : "..." },
+  "created_at": "2026-03-04T14:00:00+00:00",
+  "metadata": {
+    "version": "0.1.1",
+    "stats": {
+      "total_tokens": 8432,
+      "total_cost_usd": 0.0124,
+      "per_model": { "claude": { "tokens": 2100, "cost_usd": 0.0031, "calls": 2 } }
+    }
+  }
+}
+```

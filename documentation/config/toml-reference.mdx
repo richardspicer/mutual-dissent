@@ -5,6 +5,78 @@ description: Complete reference for ~/.mutual-dissent/config.toml
 
 # TOML Reference
 
-{/* Content to be written — full schema, defaults, examples */}
+Configuration file location: `~/.mutual-dissent/config.toml`
 
-<Info>This page is coming soon.</Info>
+## Full Example
+
+```toml
+[providers]
+openrouter_api_key = "sk-or-..."
+anthropic_api_key = "sk-ant-..."
+
+[routing]
+default_mode = "auto"
+claude = "direct"
+
+[model_aliases]
+[model_aliases.claude]
+openrouter = "anthropic/claude-sonnet-4.5"
+direct = "claude-sonnet-4-5-20250929"
+
+[model_aliases.gpt]
+openrouter = "openai/gpt-5.2"
+
+[model_aliases.gemini]
+openrouter = "google/gemini-2.5-pro"
+
+[model_aliases.grok]
+openrouter = "x-ai/grok-4"
+
+[defaults]
+panel = ["claude", "gpt", "gemini", "grok"]
+synthesizer = "claude"
+rounds = 1
+```
+
+## [providers]
+
+| Key | Description |
+|-----|-------------|
+| `openrouter_api_key` | OpenRouter API key |
+| `anthropic_api_key` | Anthropic direct API key |
+| `openai_api_key` | OpenAI API key |
+| `google_api_key` | Google API key |
+| `xai_api_key` | xAI API key |
+| `groq_api_key` | Groq API key |
+
+Environment variables override file values. See [Environment Variables](/config/environment-variables).
+
+## [routing]
+
+| Key | Values | Default | Description |
+|-----|--------|---------|-------------|
+| `default_mode` | `auto`, `direct`, `openrouter` | `auto` | Routing mode applied to all models unless overridden |
+| `<alias>` | `auto`, `direct`, `openrouter` | — | Per-model override (e.g. `claude = "direct"`) |
+
+## [model_aliases]
+
+Each alias is a subtable with `openrouter` (required) and `direct` (optional) keys.
+
+| Key | Description |
+|-----|-------------|
+| `openrouter` | OpenRouter model ID used when routing via OpenRouter |
+| `direct` | Vendor-native model ID used when calling the provider directly |
+
+## [defaults]
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `panel` | `["claude", "gpt", "gemini", "grok"]` | Default debate panel |
+| `synthesizer` | `"claude"` | Default synthesizer alias |
+| `rounds` | `1` | Default reflection rounds (1–3) |
+
+## Notes
+
+- `config.toml` is created automatically on first use of `dissent config show` or when saving from the web UI config panel
+- The file is not created by `pip install` — you only need it if you want to persist settings beyond environment variables
+- Omit any section you don't need; defaults are applied for missing values

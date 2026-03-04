@@ -5,6 +5,45 @@ description: Start the web UI server
 
 # dissent serve
 
-{/* Content to be written — usage, flags, examples, output */}
+Start the NiceGUI web interface. Provides a live debate view with WebSocket streaming, inline diff, a research dashboard with transcript browser and charts, and a config panel.
 
-<Info>This page is coming soon.</Info>
+## Usage
+
+```bash
+dissent serve [OPTIONS]
+```
+
+## Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--port` | `8080` | Port to bind to (1–65535) |
+| `--host` | `127.0.0.1` | Host address to bind to |
+| `--no-open` | off | Suppress automatic browser launch |
+
+## Examples
+
+```bash
+# Default — binds to localhost:8080 and opens browser
+dissent serve
+
+# Custom port
+dissent serve --port 9000
+
+# Bind to all interfaces (e.g. for remote access)
+dissent serve --host 0.0.0.0 --port 8080 --no-open
+```
+
+## Web UI Features
+
+**Debate view** — run debates from the browser with live streaming. Each model's response appears as it arrives via WebSocket.
+
+**Research dashboard** — browse saved transcripts, view convergence and influence charts, inspect cost breakdowns per model.
+
+**Config panel** — view and edit provider keys and routing configuration from the UI.
+
+## Notes
+
+- `dissent serve` blocks until the server is stopped (Ctrl+C)
+- Navigating away from an in-progress debate will orphan the running asyncio task — results will not be recoverable. Stay on the debate page until synthesis completes.
+- The web UI reads transcripts from `~/.mutual-dissent/transcripts/` — transcripts from CLI debates appear in the dashboard automatically
