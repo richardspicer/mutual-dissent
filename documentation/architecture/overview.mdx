@@ -5,21 +5,22 @@ description: System architecture and data flow
 
 ## Components
 
-```
-CLI / Web UI
-     │
-     ▼
-Orchestrator  ──────────────────────────────────────────────┐
-     │                                                       │
-     │  run_debate() / run_replay()                         │
-     ▼                                                       │
-ProviderRouter                                               │
-  ├── AnthropicProvider  (direct)                           │
-  └── OpenRouterProvider (universal fallback)               │
-                                                            │
-     ┌──────────────────────────────────────────────────────┘
-     ▼
-DebateTranscript  →  transcript.py  →  ~/.mutual-dissent/transcripts/
+```mermaid
+flowchart TD
+    UI["CLI / Web UI"]
+    ORCH["Orchestrator\nrun_debate() / run_replay()"]
+    ROUTER["ProviderRouter"]
+    AP["AnthropicProvider\n(direct)"]
+    OR["OpenRouterProvider\n(universal fallback)"]
+    TRANS["DebateTranscript"]
+    STORE["transcript.py\n~/.mutual-dissent/transcripts/"]
+
+    UI --> ORCH
+    ORCH --> ROUTER
+    ROUTER --> AP
+    ROUTER --> OR
+    ORCH --> TRANS
+    TRANS --> STORE
 ```
 
 ## Data Flow
