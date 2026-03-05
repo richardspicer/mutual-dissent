@@ -26,6 +26,7 @@
           "introduction",
           "quickstart",
           "concepts",
+          "responsible-use",
           "changelog"
         ]
       },
@@ -63,13 +64,6 @@
           "architecture/orchestrator",
           "architecture/providers",
           "architecture/web-ui"
-        ]
-      },
-      {
-        "group": "Research",
-        "pages": [
-          "research/methodology",
-          "research/findings"
         ]
       }
     ]

@@ -1,0 +1,30 @@
+---
+title: Responsible Use
+description: Authorized use and responsible disclosure for Mutual Dissent
+---
+
+Mutual Dissent sends queries to multiple AI models, logs complete debate transcripts, and supports adversarial context injection via `panelist_context`. When used as a research platform alongside CounterSignal and CounterAgent, it can be part of active attack simulations.
+
+## Authorized Testing Only
+
+**Only conduct research and testing against models and systems you are authorized to use.**
+
+For standard debate use, this means operating within the terms of service of each AI provider whose models you include in panels. Automated bulk querying, deliberate safety testing, and adversarial research may require additional authorization from providers — check their usage policies before proceeding.
+
+For cross-tool research involving CounterSignal payloads or CounterAgent findings, follow the responsible use requirements for those tools. Authorization for the payload generation does not transfer — you need separate authorization for any target system where the results are applied.
+
+## API Usage and Cost
+
+Mutual Dissent makes parallel API calls to all panel models simultaneously. Each debate round multiplies cost by the number of panel models. With 4 models and 3 rounds, a single debate makes 16 API calls.
+
+Review your provider agreements and budget accordingly. Do not run automated campaigns without understanding the cost implications.
+
+## Responsible Disclosure
+
+If your research with Mutual Dissent surfaces a reproducible finding about cross-vendor AI behavior — safety boundary erosion, consensus manipulation, unanimous hallucination — consider responsible disclosure to the affected providers before publishing.
+
+For vulnerabilities in Mutual Dissent itself, see [SECURITY.md](https://github.com/q-uestionable-AI/mutual-dissent/blob/main/SECURITY.md).
+
+## Intended Use
+
+Mutual Dissent is a research and analysis tool. Use it to surface disagreement, test reasoning quality across vendors, and study cross-model behavior. Use findings to inform better AI system design and security posture.
