@@ -38,6 +38,59 @@ from mutual_dissent.types import RoutingDecision
 console = Console(stderr=True)
 
 
+def _parse_version(v: str) -> tuple[int, ...]:
+    """Parse a semver-like version string into a comparable tuple.
+
+    Args:
+        v: Version string (e.g. "0.1.1").
+
+    Returns:
+        Tuple of integers (e.g. (0, 1, 1)).
+    """
+    import re
+
+    match = re.match(r"^(\d+(?:\.\d+)*)", v)
+    if not match:
+        return (0,)
+    try:
+        return tuple(int(x) for x in match.group(1).split("."))
+    except ValueError:
+        return (0,)
+
+
+def _check_for_update(package_name: str) -> None:
+    """Non-blocking background PyPI version check.
+
+    Spawns a daemon thread that fetches the latest version from PyPI
+    and prints a one-liner to stderr if a newer version is available.
+    Silent on any network or parse failure.
+
+    Args:
+        package_name: PyPI package name (e.g. "mutual-dissent").
+    """
+    import threading
+    from importlib.metadata import version
+    from urllib.request import urlopen
+
+    def _check() -> None:
+        try:
+            current = version(package_name)
+            url = f"https://pypi.org/pypi/{package_name}/json"
+            with urlopen(url, timeout=3) as resp:  # noqa: S310  # nosec B310
+                data = json.loads(resp.read())
+            latest = data["info"]["version"]
+            if _parse_version(latest) > _parse_version(current):
+                print(
+                    f"Update available: {package_name} {current} \u2192 {latest}  "
+                    f"(pip install --upgrade {package_name})",
+                    file=sys.stderr,
+                )
+        except Exception:  # noqa: BLE001, S110  # nosec B110
+            pass
+
+    threading.Thread(target=_check, daemon=True).start()
+
+
 def _resolve_ground_truth(
     ground_truth: str | None,
     ground_truth_file: str | None,
@@ -120,6 +173,7 @@ def main() -> None:
     for reflection and critique, then synthesizes a final answer through
     a user-selected model.
     """
+    _check_for_update("mutual-dissent")
 
 
 @main.command()
