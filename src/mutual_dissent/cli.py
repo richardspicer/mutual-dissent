@@ -71,7 +71,7 @@ def _check_for_update(package_name: str) -> None:
         try:
             current = version(package_name)
             url = f"https://pypi.org/pypi/{package_name}/json"
-            with urlopen(url, timeout=3) as resp:  # noqa: S310
+            with urlopen(url, timeout=3) as resp:  # noqa: S310  # nosec B310
                 data = json.loads(resp.read())
             latest = data["info"]["version"]
             if _parse_version(latest) > _parse_version(current):
@@ -80,7 +80,7 @@ def _check_for_update(package_name: str) -> None:
                     f"(pip install --upgrade {package_name})",
                     file=sys.stderr,
                 )
-        except Exception:  # noqa: BLE001, S110
+        except Exception:  # noqa: BLE001, S110  # nosec B110
             pass
 
     threading.Thread(target=_check, daemon=True).start()
