@@ -48,7 +48,91 @@ Tauri 2 desktop wrapper, transcript analysis tooling, alternative debate topolog
 
 ---
 
-## What Success Looks Like
+## v1.0 Exit Criteria
+
+SemVer 1.0 is a public commitment to interface stability. After 1.0, breaking changes to CLI commands, transcript schema, config format, or data models require a major version bump.
+
+### Capability Readiness
+
+| Area | Gate |
+|------|------|
+| Debate engine | ≥10 completed multi-model debates with full transcripts logged |
+| Research platform | ≥1 publishable finding from consensus poisoning or convergence analysis (MD-NNN) |
+
+### Interface Stability
+
+**CLI commands** (as documented at [docs.mutual-dissent.dev](https://docs.mutual-dissent.dev)):
+
+| Command | Frozen |
+|---------|--------|
+| `ask` | Command, all flags (`--panel`, `--synthesizer`, `--rounds`, `--verbose`, `--no-save`, `--output`, `--file`, `--ground-truth`, `--ground-truth-file`) |
+| `replay` | Command, all flags (`--synthesizer`, `--rounds`, `--verbose`, `--no-save`, `--output`, `--file`, `--ground-truth`, `--ground-truth-file`) |
+| `list` | Command, `--limit` flag |
+| `show` | Command, all flags (`--verbose`, `--output`, `--file`) |
+| `config path` | Command |
+| `config show` | Command, `--check-models` flag |
+| `config test` | Command |
+| `serve` | Command, all flags (`--port`, `--host`, `--no-open`) |
+
+**Published schemas** (Data & Schemas at [docs.mutual-dissent.dev](https://docs.mutual-dissent.dev)):
+
+| Schema | Commitment |
+|--------|------------|
+| Transcript JSON | Top-level fields, `DebateRound`, `ModelResponse`, `routing` object, `metadata` object — frozen |
+| Data Models | `ModelResponse`, `DebateRound`, `DebateTranscript`, `ExperimentMetadata` — frozen |
+| Metadata keys | `stats`, `scores`, `experiment`, `panelist_context`, `source_transcript_id`, `replay_config` — frozen |
+
+**Provider interface:**
+
+| Surface | Commitment |
+|---------|------------|
+| `Provider` ABC | `complete()`, `complete_parallel()`, async context manager — frozen |
+| `ProviderRouter` | Routing modes (`auto`, `direct`, `openrouter`) — frozen |
+| `ModelResponse` dataclass | All fields including `routing` dict — frozen |
+
+**Config format:**
+
+| Surface | Commitment |
+|---------|------------|
+| `config.toml` sections | `[providers]`, `[routing]`, `[model_aliases]`, `[defaults]` — section names and key semantics frozen |
+| Environment variable overrides | `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY`, `GROQ_API_KEY` — frozen |
+
+**Extension points:**
+
+| Surface | Commitment |
+|---------|------------|
+| `panelist_context` | `dict[str, str]` interface frozen |
+| `on_round_complete` | `Callable[[DebateRound], Awaitable[None]]` signature frozen |
+| `ExperimentMetadata` fields | `experiment_id`, `source_tool`, `campaign_id`, `condition`, `variables`, `finding_ref` — frozen |
+
+**Web GUI:**
+
+| Surface | Commitment |
+|---------|------------|
+| Routes | `/` (debate view), `/dashboard` — stable |
+| WebSocket streaming | Round-by-round progressive rendering — behavior stable |
+
+### Research Validation
+
+- ≥1 publishable finding from consensus manipulation, convergence patterns, or safety boundary research
+- Ground-truth scoring validated against ≥1 curated query set with known answers
+
+### Known Limitations at 1.0
+
+- **Navigation kills running debates** — NiceGUI re-creates pages on route change, orphaning the asyncio task. Results are lost. Workaround: stay on the debate page until synthesis completes. Fix targeted for post-1.0.
+- **Influence heatmap visualMap text clipped** — mid-range labels render behind the bar or are color-invisible. ECharts `visualMap` config needs adjustment.
+- **JSON/CSV export is metadata only** — dashboard export serializes summary index, not full transcripts. Labels are misleading.
+
+### Explicitly Post-1.0
+
+- **Tauri desktop wrapper** — web UI and CLI cover all current workflows.
+- **Batch mode** — programmatic batch execution of debate campaigns.
+- **Navigation bug fix** — requires SPA tab-switching or state recovery architecture.
+- **Cross-tool studies** — tracked independently of Mutual Dissent tool versioning.
+
+---
+
+## Goals
 
 - A tool I actually use when the answer matters — replacing my manual
   cross-conversation workflow

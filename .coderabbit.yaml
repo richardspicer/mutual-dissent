@@ -78,33 +78,33 @@ reviews:
     - path: ".github/workflows/**"
       instructions: >-
         CI/CD workflows. Check: secrets not exposed in logs, matrix
-        includes both ubuntu-latest and windows-latest, pinned action
-        versions use SHA not tags.
+        includes both ubuntu-latest and windows-latest, and action
+        versions are pinned to major tags (e.g. @v4, @v6).
+        Do not flag tag-based pins or suggest SHA pinning.
 
   finishing_touches:
     docstrings:
-      enabled: true
+      enabled: false
     unit_tests:
       enabled: true
 
   tools:
     ruff:
-      enabled: true
+      enabled: false  # CI handles this
     gitleaks:
-      enabled: true
+      enabled: false  # pre-commit handles this
     trufflehog:
-      enabled: true
+      enabled: false  # overlaps with gitleaks
     actionlint:
       enabled: true
     shellcheck:
-      enabled: true
+      enabled: false
     yamllint:
-      enabled: true
+      enabled: false
     markdownlint:
-      enabled: true
+      enabled: false
     github-checks:
-      enabled: true
-      timeout_ms: 120000
+      enabled: false
 
 chat:
   auto_reply: true
@@ -126,12 +126,11 @@ knowledge_base:
         MCP security vulnerability scanner. Shares core evidence models
         and OWASP mapping patterns. CounterAgent discovers vulnerabilities
         that CounterSignal generates payloads for.
-    # Uncomment once CounterSignal repo exists on GitHub:
-    # - repository: "q-uestionable-ai/countersignal"
-    #   instructions: >-
-    #     Adversarial payload generator. RXP (RAG poisoning optimizer)
-    #     integration planned — poisoned documents feed into Mutual
-    #     Dissent vector stores for consensus poisoning research.
+    - repository: "q-uestionable-ai/countersignal"
+      instructions: >-
+        Adversarial payload generator. RXP (RAG poisoning optimizer)
+        integration planned — poisoned documents feed into Mutual
+        Dissent vector stores for consensus poisoning research.
 
 code_generation:
   docstrings:
