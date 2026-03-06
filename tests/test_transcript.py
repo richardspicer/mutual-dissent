@@ -36,7 +36,7 @@ def _write_transcript(tmp_path: Path, data: dict[str, Any]) -> Path:
 
 def _make_response_dict(
     *,
-    model_id: str = "anthropic/claude-sonnet-4.5",
+    model_id: str = "anthropic/claude-sonnet-4-6",
     model_alias: str = "claude",
     round_number: int = 0,
     content: str = "Test response content",
@@ -185,7 +185,7 @@ class TestParseTranscriptFile:
 
         resp = transcript.rounds[0].responses[0]
         assert isinstance(resp, ModelResponse)
-        assert resp.model_id == "anthropic/claude-sonnet-4.5"
+        assert resp.model_id == "anthropic/claude-sonnet-4-6"
         assert resp.content == "Claude's initial response"
         assert resp.token_count == 150
         assert resp.latency_ms == 1200
@@ -292,7 +292,7 @@ class TestParseTranscriptFile:
                 round_type="initial",
                 responses=[
                     ModelResponse(
-                        model_id="anthropic/claude-sonnet-4.5",
+                        model_id="anthropic/claude-sonnet-4-6",
                         model_alias="claude",
                         round_number=0,
                         content="Round trip response",

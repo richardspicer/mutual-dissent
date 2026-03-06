@@ -31,9 +31,9 @@ CONFIG_PATH = APP_DIR / "config.toml"
 TRANSCRIPT_DIR = APP_DIR / "transcripts"
 
 # Default model aliases → OpenRouter model IDs.
-# Verified against OpenRouter offerings as of 2026-02-21.
+# Verified against OpenRouter offerings as of 2026-03-06.
 DEFAULT_MODEL_ALIASES: dict[str, str] = {
-    "claude": "anthropic/claude-sonnet-4.5",
+    "claude": "anthropic/claude-sonnet-4-6",
     "gpt": "openai/gpt-5.2",
     "gemini": "google/gemini-2.5-pro",
     "grok": "x-ai/grok-4",
@@ -43,8 +43,8 @@ DEFAULT_MODEL_ALIASES: dict[str, str] = {
 # The "direct" key is the vendor-native model ID for direct API calls.
 DEFAULT_MODEL_ALIASES_V2: dict[str, dict[str, str]] = {
     "claude": {
-        "openrouter": "anthropic/claude-sonnet-4.5",
-        "direct": "claude-sonnet-4-5-20250929",
+        "openrouter": "anthropic/claude-sonnet-4-6",
+        "direct": "claude-sonnet-4-6",  # Floating alias, not snapshot-dated
     },
     "gpt": {
         "openrouter": "openai/gpt-5.2",
@@ -117,7 +117,7 @@ class Config:
 
         Args:
             alias_or_id: Either a short alias (e.g. "claude") or a full
-                OpenRouter model ID (e.g. "anthropic/claude-sonnet-4.5").
+                OpenRouter model ID (e.g. "anthropic/claude-sonnet-4-6").
             direct: If True, return the vendor-native model ID instead of
                 the OpenRouter ID.
 
@@ -138,7 +138,7 @@ class Config:
         raise ValueError(
             f"Unknown model alias '{alias_or_id}'. "
             f"Known aliases: {', '.join(sorted(self._model_aliases_v2.keys()))}. "
-            f"Or pass a full OpenRouter model ID (e.g. 'anthropic/claude-sonnet-4.5')."
+            f"Or pass a full OpenRouter model ID (e.g. 'anthropic/claude-sonnet-4-6')."
         )
 
     def resolve_panel(self, panel: list[str]) -> list[str]:
@@ -195,7 +195,7 @@ def _normalize_aliases(
 
     Args:
         raw: Raw model_aliases from TOML. Values are either strings
-            (Phase 1: "anthropic/claude-sonnet-4.5") or dicts
+            (Phase 1: "anthropic/claude-sonnet-4-6") or dicts
             (Phase 1.5: {"openrouter": "...", "direct": "..."}).
 
     Returns:

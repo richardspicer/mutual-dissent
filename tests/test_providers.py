@@ -158,7 +158,7 @@ class TestCompleteWithPrompt:
             provider._client.post = AsyncMock(return_value=_mock_success_response())
 
             result = await provider.complete(
-                "anthropic/claude-sonnet-4.5",
+                "anthropic/claude-sonnet-4-6",
                 prompt="Hello",
                 model_alias="claude",
                 round_number=0,
@@ -166,7 +166,7 @@ class TestCompleteWithPrompt:
 
         assert isinstance(result, ModelResponse)
         assert result.content == "Hello back!"
-        assert result.model_id == "anthropic/claude-sonnet-4.5"
+        assert result.model_id == "anthropic/claude-sonnet-4-6"
         assert result.model_alias == "claude"
         assert result.round_number == 0
         assert result.token_count == 42

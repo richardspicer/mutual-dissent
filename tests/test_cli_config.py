@@ -74,7 +74,7 @@ class TestRenderConfigTestSuccess:
     def test_renders_without_error(self, capsys: object) -> None:
         """Smoke test — render_config_test doesn't raise."""
         results = [
-            _make_result("claude", Vendor.ANTHROPIC, False, "claude-sonnet-4-5-20250929"),
+            _make_result("claude", Vendor.ANTHROPIC, False, "claude-sonnet-4-6"),
             _make_result("gpt", Vendor.OPENAI, True, "openai/gpt-5.2"),
         ]
         # Should not raise.
@@ -87,7 +87,7 @@ class TestRenderConfigTestSuccess:
         from rich.console import Console
 
         results = [
-            _make_result("claude", Vendor.ANTHROPIC, False, "claude-sonnet-4-5-20250929"),
+            _make_result("claude", Vendor.ANTHROPIC, False, "claude-sonnet-4-6"),
             _make_result("gpt", Vendor.OPENAI, True, "openai/gpt-5.2"),
             _make_result("gemini", Vendor.GOOGLE, True, "google/gemini-2.5-pro"),
         ]
@@ -121,7 +121,7 @@ class TestRenderConfigTestSuccess:
                 "claude",
                 Vendor.ANTHROPIC,
                 False,
-                "claude-sonnet-4-5-20250929",
+                "claude-sonnet-4-6",
                 latency_ms=1200,
             ),
         ]
@@ -148,7 +148,7 @@ class TestRenderConfigTestSuccess:
         from rich.console import Console
 
         results = [
-            _make_result("claude", Vendor.ANTHROPIC, False, "claude-sonnet-4-5-20250929"),
+            _make_result("claude", Vendor.ANTHROPIC, False, "claude-sonnet-4-6"),
         ]
 
         buf = StringIO()
@@ -266,7 +266,7 @@ class TestRenderConfigTestError:
         from rich.console import Console
 
         results = [
-            _make_result("claude", Vendor.ANTHROPIC, False, "claude-sonnet-4-5-20250929"),
+            _make_result("claude", Vendor.ANTHROPIC, False, "claude-sonnet-4-6"),
             _make_result(
                 "grok",
                 Vendor.XAI,
@@ -453,7 +453,7 @@ class TestRenderConfigShow:
 
         config = Config()
         output = self._capture(config)
-        assert "anthropic/claude-sonnet-4.5" in output
+        assert "anthropic/claude-sonnet-4-6" in output
 
     def test_shows_routing_mode(self) -> None:
         from mutual_dissent.config import Config

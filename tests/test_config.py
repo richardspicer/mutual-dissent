@@ -25,7 +25,7 @@ PHASE_1_TOML = """\
 api_key = "sk-or-phase1"
 
 [model_aliases]
-claude = "anthropic/claude-sonnet-4.5"
+claude = "anthropic/claude-sonnet-4-6"
 gpt = "openai/gpt-5.2"
 
 [defaults]
@@ -48,8 +48,8 @@ gpt = "openrouter"
 gemini = "auto"
 
 [model_aliases]
-claude.openrouter = "anthropic/claude-sonnet-4.5"
-claude.direct = "claude-sonnet-4-5-20250929"
+claude.openrouter = "anthropic/claude-sonnet-4-6"
+claude.direct = "claude-sonnet-4-6"
 gpt.openrouter = "openai/gpt-5.2"
 gpt.direct = "gpt-5.2"
 gemini.openrouter = "google/gemini-2.5-pro"
@@ -64,8 +64,8 @@ MIXED_TOML = """\
 api_key = "sk-or-mixed"
 
 [model_aliases]
-claude.openrouter = "anthropic/claude-sonnet-4.5"
-claude.direct = "claude-sonnet-4-5-20250929"
+claude.openrouter = "anthropic/claude-sonnet-4-6"
+claude.direct = "claude-sonnet-4-6"
 gpt = "openai/gpt-5.2"
 """
 
@@ -143,8 +143,8 @@ class TestPhase15SchemaLoading:
 
     def test_nested_model_aliases_loaded(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, PHASE_1_5_TOML)
-        assert config.resolve_model("claude") == "anthropic/claude-sonnet-4.5"
-        assert config.resolve_model("claude", direct=True) == "claude-sonnet-4-5-20250929"
+        assert config.resolve_model("claude") == "anthropic/claude-sonnet-4-6"
+        assert config.resolve_model("claude", direct=True) == "claude-sonnet-4-6"
         assert config.resolve_model("gpt") == "openai/gpt-5.2"
         assert config.resolve_model("gpt", direct=True) == "gpt-5.2"
 
@@ -170,7 +170,7 @@ class TestPhase1BackwardCompat:
 
     def test_flat_aliases_still_work(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, PHASE_1_TOML)
-        assert config.resolve_model("claude") == "anthropic/claude-sonnet-4.5"
+        assert config.resolve_model("claude") == "anthropic/claude-sonnet-4-6"
         assert config.resolve_model("gpt") == "openai/gpt-5.2"
 
     def test_api_key_from_top_level(self, config_dir: Path) -> None:
@@ -185,12 +185,12 @@ class TestPhase1BackwardCompat:
     def test_resolve_panel_still_works(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, PHASE_1_TOML)
         ids = config.resolve_panel(["claude", "gpt"])
-        assert ids == ["anthropic/claude-sonnet-4.5", "openai/gpt-5.2"]
+        assert ids == ["anthropic/claude-sonnet-4-6", "openai/gpt-5.2"]
 
     def test_flat_aliases_resolve_model_direct_falls_back(self, config_dir: Path) -> None:
         """Phase 1 flat alias: direct=True returns OpenRouter ID as fallback."""
         config = _load_with_config(config_dir, PHASE_1_TOML)
-        assert config.resolve_model("claude", direct=True) == "anthropic/claude-sonnet-4.5"
+        assert config.resolve_model("claude", direct=True) == "anthropic/claude-sonnet-4-6"
 
     def test_defaults_from_phase1(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, PHASE_1_TOML)
@@ -209,8 +209,8 @@ class TestMixedAliases:
 
     def test_nested_alias_has_dual_ids(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, MIXED_TOML)
-        assert config.resolve_model("claude") == "anthropic/claude-sonnet-4.5"
-        assert config.resolve_model("claude", direct=True) == "claude-sonnet-4-5-20250929"
+        assert config.resolve_model("claude") == "anthropic/claude-sonnet-4-6"
+        assert config.resolve_model("claude", direct=True) == "claude-sonnet-4-6"
 
     def test_flat_alias_still_resolves(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, MIXED_TOML)
@@ -279,11 +279,11 @@ class TestResolveModel:
 
     def test_default_returns_openrouter_id(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, PHASE_1_5_TOML)
-        assert config.resolve_model("claude") == "anthropic/claude-sonnet-4.5"
+        assert config.resolve_model("claude") == "anthropic/claude-sonnet-4-6"
 
     def test_direct_returns_vendor_native_id(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, PHASE_1_5_TOML)
-        assert config.resolve_model("claude", direct=True) == "claude-sonnet-4-5-20250929"
+        assert config.resolve_model("claude", direct=True) == "claude-sonnet-4-6"
 
     def test_no_direct_id_falls_back_to_openrouter(self, config_dir: Path) -> None:
         """gemini has no .direct in PHASE_1_5_TOML, should fall back."""
@@ -293,7 +293,7 @@ class TestResolveModel:
     def test_full_model_id_passthrough(self, config_dir: Path) -> None:
         """Full model IDs with slash pass through unchanged."""
         config = _load_with_config(config_dir, PHASE_1_5_TOML)
-        assert config.resolve_model("anthropic/claude-sonnet-4.5") == "anthropic/claude-sonnet-4.5"
+        assert config.resolve_model("anthropic/claude-sonnet-4-6") == "anthropic/claude-sonnet-4-6"
 
     def test_unknown_alias_raises(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, PHASE_1_5_TOML)
@@ -316,7 +316,7 @@ class TestResolveModel:
             patch.dict(os.environ, clean_env, clear=False),
         ):
             config = load_config()
-        assert config.resolve_model("claude") == "anthropic/claude-sonnet-4.5"
+        assert config.resolve_model("claude") == "anthropic/claude-sonnet-4-6"
 
 
 # ---------------------------------------------------------------------------
@@ -468,8 +468,8 @@ class TestWriteConfig:
         """write_config preserves dual-ID model aliases."""
         aliases_v2 = {
             "claude": {
-                "openrouter": "anthropic/claude-sonnet-4.5",
-                "direct": "claude-sonnet-4-5-20250929",
+                "openrouter": "anthropic/claude-sonnet-4-6",
+                "direct": "claude-sonnet-4-6",
             },
             "gpt": {
                 "openrouter": "openai/gpt-5.2",
@@ -482,8 +482,8 @@ class TestWriteConfig:
 
         loaded = self._load_roundtrip(config_path)
 
-        assert loaded.resolve_model("claude") == "anthropic/claude-sonnet-4.5"
-        assert loaded.resolve_model("claude", direct=True) == "claude-sonnet-4-5-20250929"
+        assert loaded.resolve_model("claude") == "anthropic/claude-sonnet-4-6"
+        assert loaded.resolve_model("claude", direct=True) == "claude-sonnet-4-6"
         assert loaded.resolve_model("gpt") == "openai/gpt-5.2"
         assert loaded.resolve_model("gpt", direct=True) == "gpt-5.2"
 

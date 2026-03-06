@@ -19,7 +19,7 @@ Typical usage::
     async def main():
         async with AnthropicProvider(api_key="sk-ant-...") as provider:
             response = await provider.complete(
-                "claude-sonnet-4-5-20250929", prompt="Hello",
+                "claude-sonnet-4-6", prompt="Hello",
             )
 
     asyncio.run(main())
@@ -56,7 +56,7 @@ class AnthropicProvider(Provider):
 
         async with AnthropicProvider(api_key="sk-ant-...") as provider:
             resp = await provider.complete(
-                "claude-sonnet-4-5-20250929", prompt="What is 2+2?",
+                "claude-sonnet-4-6", prompt="What is 2+2?",
             )
             print(resp.content)
     """
@@ -112,7 +112,7 @@ class AnthropicProvider(Provider):
         required by the Anthropic API.
 
         Args:
-            model_id: Anthropic model identifier (e.g. "claude-sonnet-4-5-20250929").
+            model_id: Anthropic model identifier (e.g. "claude-sonnet-4-6").
             messages: Chat messages in OpenAI-compatible format.
             prompt: Single user message string (convenience shorthand).
             model_alias: Human-readable name for logging.  Defaults to

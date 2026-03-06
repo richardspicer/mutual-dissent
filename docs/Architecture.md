@@ -296,12 +296,12 @@ grok = "openrouter"
 [model_aliases]
 # Dual IDs per alias: OpenRouter format and vendor-native format.
 # Verify against vendor docs and OpenRouter before hardcoding — IDs change.
-claude.openrouter = "anthropic/claude-sonnet-4-5"
-claude.direct = "claude-sonnet-4-5-20250929"
-gpt.openrouter = "openai/gpt-4.1"
-gpt.direct = "gpt-4.1"
+claude.openrouter = "anthropic/claude-sonnet-4-6"
+claude.direct = "claude-sonnet-4-6"
+gpt.openrouter = "openai/gpt-5.2"
+gpt.direct = "gpt-5.2"
 gemini.openrouter = "google/gemini-2.5-pro"
-grok.openrouter = "x-ai/grok-3"
+grok.openrouter = "x-ai/grok-4"
 
 [defaults]
 panel = ["claude", "gpt", "gemini", "grok"]
@@ -409,8 +409,8 @@ class DebateTranscript:
 {
   "transcript_id": "uuid",
   "query": "user's original question",
-  "panel": ["anthropic/claude-sonnet-4-5", "openai/gpt-4.1"],
-  "synthesizer_id": "anthropic/claude-sonnet-4-5",
+  "panel": ["anthropic/claude-sonnet-4-6", "openai/gpt-5.2"],
+  "synthesizer_id": "anthropic/claude-sonnet-4-6",
   "max_rounds": 1,
   "created_at": "2026-02-21T15:30:00Z",
   "rounds": [
@@ -419,7 +419,7 @@ class DebateTranscript:
       "round_type": "initial",
       "responses": [
         {
-          "model_id": "anthropic/claude-sonnet-4-5",
+          "model_id": "anthropic/claude-sonnet-4-6",
           "model_alias": "claude",
           "round_number": 0,
           "role": "initial",
@@ -539,10 +539,10 @@ mutual-dissent replay <transcript-id> --synthesizer grok --rounds 1
 
 | Alias | OpenRouter Model ID | Direct Model ID | Direct Provider |
 |-------|---------------------|-----------------|-----------------|
-| `claude` | `anthropic/claude-sonnet-4-5` | `claude-sonnet-4-5-20250929` | Anthropic Messages API |
-| `gpt` | `openai/gpt-4.1` | `gpt-4.1` | OpenAI Chat API |
+| `claude` | `anthropic/claude-sonnet-4-6` | `claude-sonnet-4-6` | Anthropic Messages API |
+| `gpt` | `openai/gpt-5.2` | `gpt-5.2` | OpenAI Chat API |
 | `gemini` | `google/gemini-2.5-pro` | — | Google Generative AI API |
-| `grok` | `x-ai/grok-3` | — | xAI Chat API |
+| `grok` | `x-ai/grok-4` | — | xAI Chat API |
 
 Model IDs are placeholders — verify against OpenRouter and vendor docs before
 implementation. IDs change frequently.

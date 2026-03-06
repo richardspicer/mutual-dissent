@@ -12,7 +12,7 @@ Typical usage::
     async def main():
         async with OpenRouterProvider(api_key="sk-or-...") as provider:
             response = await provider.complete(
-                "anthropic/claude-sonnet-4.5", prompt="Hello",
+                "anthropic/claude-sonnet-4-6", prompt="Hello",
             )
 
     asyncio.run(main())

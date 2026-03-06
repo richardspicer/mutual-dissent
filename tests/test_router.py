@@ -85,7 +85,7 @@ class TestResolveVendor:
 
     def test_full_model_id_anthropic(self) -> None:
         config = Config()
-        assert _resolve_vendor("anthropic/claude-sonnet-4.5", config) == Vendor.ANTHROPIC
+        assert _resolve_vendor("anthropic/claude-sonnet-4-6", config) == Vendor.ANTHROPIC
 
     def test_full_model_id_openai(self) -> None:
         config = Config()
@@ -311,14 +311,14 @@ class TestDispatch:
     async def test_routes_to_openrouter(self) -> None:
         config = _make_config(openrouter_key="sk-or-test")
         async with ProviderRouter(config) as router:
-            mock_resp = _mock_response("anthropic/claude-sonnet-4.5", "claude")
+            mock_resp = _mock_response("anthropic/claude-sonnet-4-6", "claude")
             router._openrouter.complete = AsyncMock(return_value=mock_resp)  # type: ignore[union-attr]
 
             result = await router.complete("claude", prompt="Hello")
 
             router._openrouter.complete.assert_called_once()  # type: ignore[union-attr]
             call_args = router._openrouter.complete.call_args  # type: ignore[union-attr]
-            assert call_args[0][0] == "anthropic/claude-sonnet-4.5"
+            assert call_args[0][0] == "anthropic/claude-sonnet-4-6"
             assert result.content == "mock response"
 
     @pytest.mark.asyncio
@@ -328,7 +328,7 @@ class TestDispatch:
             anthropic_key="sk-ant-test",
         )
         async with ProviderRouter(config) as router:
-            mock_resp = _mock_response("claude-sonnet-4-5-20250929", "claude")
+            mock_resp = _mock_response("claude-sonnet-4-6", "claude")
             router._providers["anthropic"].complete = AsyncMock(  # type: ignore[assignment]
                 return_value=mock_resp,
             )
@@ -337,7 +337,7 @@ class TestDispatch:
 
             router._providers["anthropic"].complete.assert_called_once()  # type: ignore[attr-defined]
             call_args = router._providers["anthropic"].complete.call_args  # type: ignore[attr-defined]
-            assert call_args[0][0] == "claude-sonnet-4-5-20250929"
+            assert call_args[0][0] == "claude-sonnet-4-6"
             assert result.content == "mock response"
 
     @pytest.mark.asyncio
@@ -454,7 +454,7 @@ class TestMixedParallel:
             anthropic_key="sk-ant-test",
         )
         async with ProviderRouter(config) as router:
-            anthropic_resp = _mock_response("claude-sonnet-4-5-20250929", "claude")
+            anthropic_resp = _mock_response("claude-sonnet-4-6", "claude")
             openrouter_resp = _mock_response("openai/gpt-5.2", "gpt")
 
             router._providers["anthropic"].complete = AsyncMock(  # type: ignore[assignment]
@@ -481,7 +481,7 @@ class TestMixedParallel:
     async def test_parallel_preserves_order(self) -> None:
         config = _make_config(openrouter_key="sk-or-test")
         async with ProviderRouter(config) as router:
-            resp_claude = _mock_response("anthropic/claude-sonnet-4.5", "claude")
+            resp_claude = _mock_response("anthropic/claude-sonnet-4-6", "claude")
             resp_gpt = _mock_response("openai/gpt-5.2", "gpt")
 
             call_count = 0
@@ -620,7 +620,7 @@ class TestRoutingProvenance:
     async def test_routing_populated_on_success(self) -> None:
         config = _make_config(openrouter_key="sk-or-test")
         async with ProviderRouter(config) as router:
-            mock_resp = _mock_response("anthropic/claude-sonnet-4.5", "claude")
+            mock_resp = _mock_response("anthropic/claude-sonnet-4-6", "claude")
             router._openrouter.complete = AsyncMock(return_value=mock_resp)  # type: ignore[union-attr]
 
             result = await router.complete("claude", prompt="Hello")

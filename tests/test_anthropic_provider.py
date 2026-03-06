@@ -88,7 +88,7 @@ class TestAsyncContextManager:
     async def test_complete_outside_context_raises(self) -> None:
         provider = AnthropicProvider(api_key="sk-ant-test")
         with pytest.raises(RuntimeError, match="context manager"):
-            await provider.complete("claude-sonnet-4-5-20250929", prompt="Hello")
+            await provider.complete("claude-sonnet-4-6", prompt="Hello")
 
     @pytest.mark.asyncio
     async def test_headers_set_correctly(self) -> None:
@@ -238,7 +238,7 @@ def _mock_anthropic_success() -> httpx.Response:
         "type": "message",
         "role": "assistant",
         "content": [{"type": "text", "text": "Hello back!"}],
-        "model": "claude-sonnet-4-5-20250929",
+        "model": "claude-sonnet-4-6",
         "stop_reason": "end_turn",
         "usage": {"input_tokens": 12, "output_tokens": 6},
     }
@@ -265,7 +265,7 @@ class TestCompleteWithPrompt:
             provider._client.post = AsyncMock(return_value=_mock_anthropic_success())
 
             result = await provider.complete(
-                "claude-sonnet-4-5-20250929",
+                "claude-sonnet-4-6",
                 prompt="Hello",
                 model_alias="claude",
                 round_number=0,
@@ -273,7 +273,7 @@ class TestCompleteWithPrompt:
 
         assert isinstance(result, ModelResponse)
         assert result.content == "Hello back!"
-        assert result.model_id == "claude-sonnet-4-5-20250929"
+        assert result.model_id == "claude-sonnet-4-6"
         assert result.model_alias == "claude"
         assert result.round_number == 0
         assert result.token_count == 18
@@ -289,7 +289,7 @@ class TestCompleteWithPrompt:
             mock_post = AsyncMock(return_value=_mock_anthropic_success())
             provider._client.post = mock_post
 
-            await provider.complete("claude-sonnet-4-5-20250929", prompt="Test prompt")
+            await provider.complete("claude-sonnet-4-6", prompt="Test prompt")
 
             call_kwargs = mock_post.call_args
             payload = call_kwargs.kwargs.get("json") or call_kwargs[1].get("json")
@@ -304,7 +304,7 @@ class TestCompleteWithPrompt:
             mock_post = AsyncMock(return_value=_mock_anthropic_success())
             provider._client.post = mock_post
 
-            await provider.complete("claude-sonnet-4-5-20250929", prompt="Hello")
+            await provider.complete("claude-sonnet-4-6", prompt="Hello")
 
             call_kwargs = mock_post.call_args
             payload = call_kwargs.kwargs.get("json") or call_kwargs[1].get("json")
@@ -319,11 +319,11 @@ class TestCompleteWithPrompt:
             provider._client.post = AsyncMock(return_value=_mock_anthropic_success())
 
             result = await provider.complete(
-                "claude-sonnet-4-5-20250929",
+                "claude-sonnet-4-6",
                 prompt="Hi",
             )
 
-        assert result.model_alias == "claude-sonnet-4-5-20250929"
+        assert result.model_alias == "claude-sonnet-4-6"
 
     @pytest.mark.asyncio
     async def test_posts_to_anthropic_url(self) -> None:
@@ -334,7 +334,7 @@ class TestCompleteWithPrompt:
             mock_post = AsyncMock(return_value=_mock_anthropic_success())
             provider._client.post = mock_post
 
-            await provider.complete("claude-sonnet-4-5-20250929", prompt="Hello")
+            await provider.complete("claude-sonnet-4-6", prompt="Hello")
 
             call_args = mock_post.call_args
             url = call_args.args[0] if call_args.args else call_args[0][0]
@@ -367,7 +367,7 @@ class TestCompleteWithMessages:
             provider._client.post = mock_post
 
             await provider.complete(
-                "claude-sonnet-4-5-20250929",
+                "claude-sonnet-4-6",
                 messages=messages,
                 model_alias="claude",
             )
@@ -388,7 +388,7 @@ class TestCompleteWithMessages:
             provider._client.post = mock_post
 
             await provider.complete(
-                "claude-sonnet-4-5-20250929",
+                "claude-sonnet-4-6",
                 messages=messages,
             )
 
@@ -403,7 +403,7 @@ class TestCompleteWithMessages:
         async with provider:
             with pytest.raises(ValueError, match="not both"):
                 await provider.complete(
-                    "claude-sonnet-4-5-20250929",
+                    "claude-sonnet-4-6",
                     messages=[{"role": "user", "content": "Hi"}],
                     prompt="Hello",
                 )
@@ -413,7 +413,7 @@ class TestCompleteWithMessages:
         provider = AnthropicProvider(api_key="sk-ant-test")
         async with provider:
             with pytest.raises(ValueError, match="Provide either"):
-                await provider.complete("claude-sonnet-4-5-20250929")
+                await provider.complete("claude-sonnet-4-6")
 
 
 # ---------------------------------------------------------------------------
@@ -438,7 +438,7 @@ class TestErrorHandling:
             )
 
             result = await provider.complete(
-                "claude-sonnet-4-5-20250929",
+                "claude-sonnet-4-6",
                 prompt="Hello",
                 model_alias="claude",
             )
@@ -466,7 +466,7 @@ class TestErrorHandling:
             provider._client.post = AsyncMock(return_value=error_resp)
 
             result = await provider.complete(
-                "claude-sonnet-4-5-20250929",
+                "claude-sonnet-4-6",
                 prompt="Hello",
                 model_alias="claude",
             )
@@ -489,7 +489,7 @@ class TestErrorHandling:
             provider._client.post = AsyncMock(return_value=resp)
 
             result = await provider.complete(
-                "claude-sonnet-4-5-20250929",
+                "claude-sonnet-4-6",
                 prompt="Hello",
             )
 
@@ -511,7 +511,7 @@ class TestErrorHandling:
             provider._client.post = AsyncMock(return_value=error_resp)
 
             result = await provider.complete(
-                "claude-sonnet-4-5-20250929",
+                "claude-sonnet-4-6",
                 prompt="Hello",
             )
 

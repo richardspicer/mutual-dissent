@@ -173,7 +173,7 @@ class TestParsePricingResponse:
         data = {
             "data": [
                 {
-                    "id": "anthropic/claude-sonnet-4.5",
+                    "id": "anthropic/claude-sonnet-4-6",
                     "pricing": {"prompt": "0.000003", "completion": "0.000015"},
                 },
                 {
@@ -184,8 +184,8 @@ class TestParsePricingResponse:
         }
         result = _parse_pricing_response(data)
         assert len(result) == 2
-        assert result["anthropic/claude-sonnet-4.5"].prompt_price == 0.000003
-        assert result["anthropic/claude-sonnet-4.5"].completion_price == 0.000015
+        assert result["anthropic/claude-sonnet-4-6"].prompt_price == 0.000003
+        assert result["anthropic/claude-sonnet-4-6"].completion_price == 0.000015
         assert result["openai/gpt-5.2"].prompt_price == 0.000005
 
     def test_missing_pricing_skipped(self) -> None:
@@ -233,7 +233,7 @@ def _mock_models_response() -> httpx.Response:
     resp.json.return_value = {
         "data": [
             {
-                "id": "anthropic/claude-sonnet-4.5",
+                "id": "anthropic/claude-sonnet-4-6",
                 "pricing": {"prompt": "0.000003", "completion": "0.000015"},
                 "context_length": 200000,
             },
@@ -268,7 +268,7 @@ class TestPricingCache:
         original = httpx.AsyncClient
         try:
             httpx.AsyncClient = lambda **kwargs: mock_client  # type: ignore[assignment,misc]
-            pricing = await cache.get_pricing("anthropic/claude-sonnet-4.5")
+            pricing = await cache.get_pricing("anthropic/claude-sonnet-4-6")
         finally:
             httpx.AsyncClient = original
 
@@ -290,7 +290,7 @@ class TestPricingCache:
         original = httpx.AsyncClient
         try:
             httpx.AsyncClient = lambda **kwargs: mock_client  # type: ignore[assignment,misc]
-            await cache.get_pricing("anthropic/claude-sonnet-4.5")
+            await cache.get_pricing("anthropic/claude-sonnet-4-6")
             await cache.get_pricing("openai/gpt-5.2")
         finally:
             httpx.AsyncClient = original
@@ -311,7 +311,7 @@ class TestPricingCache:
         original = httpx.AsyncClient
         try:
             httpx.AsyncClient = lambda **kwargs: mock_client  # type: ignore[assignment,misc]
-            pricing = await cache.get_pricing("anthropic/claude-sonnet-4.5")
+            pricing = await cache.get_pricing("anthropic/claude-sonnet-4-6")
         finally:
             httpx.AsyncClient = original
 
@@ -333,7 +333,7 @@ class TestPricingCache:
         original = httpx.AsyncClient
         try:
             httpx.AsyncClient = lambda **kwargs: mock_client  # type: ignore[assignment,misc]
-            pricing = await cache.get_pricing("anthropic/claude-sonnet-4.5")
+            pricing = await cache.get_pricing("anthropic/claude-sonnet-4-6")
         finally:
             httpx.AsyncClient = original
 
@@ -344,8 +344,8 @@ class TestPricingCache:
         """Vendor-native model IDs are resolved via alias map."""
         alias_map = {
             "claude": {
-                "openrouter": "anthropic/claude-sonnet-4.5",
-                "direct": "claude-sonnet-4-5-20250929",
+                "openrouter": "anthropic/claude-sonnet-4-6",
+                "direct": "claude-sonnet-4-6",
             },
         }
         cache = PricingCache(alias_map=alias_map)
@@ -359,7 +359,7 @@ class TestPricingCache:
         original = httpx.AsyncClient
         try:
             httpx.AsyncClient = lambda **kwargs: mock_client  # type: ignore[assignment,misc]
-            pricing = await cache.get_pricing("claude-sonnet-4-5-20250929")
+            pricing = await cache.get_pricing("claude-sonnet-4-6")
         finally:
             httpx.AsyncClient = original
 
@@ -430,7 +430,7 @@ class TestComputeStatsWithCost:
         # Build a pricing cache with pre-populated data.
         cache = PricingCache()
         cache._cache = {
-            "anthropic/claude-sonnet-4.5": ModelPricing(
+            "anthropic/claude-sonnet-4-6": ModelPricing(
                 prompt_price=0.000003, completion_price=0.000015
             ),
             "openai/gpt-5.2": ModelPricing(prompt_price=0.000005, completion_price=0.000010),
@@ -709,40 +709,40 @@ class TestContextLength:
         data = {
             "data": [
                 {
-                    "id": "anthropic/claude-sonnet-4.5",
+                    "id": "anthropic/claude-sonnet-4-6",
                     "pricing": {"prompt": "0.000003", "completion": "0.000015"},
                     "context_length": 200000,
                 },
             ]
         }
         result = _parse_pricing_response(data)
-        assert result["anthropic/claude-sonnet-4.5"].context_length == 200000
+        assert result["anthropic/claude-sonnet-4-6"].context_length == 200000
 
     def test_parse_pricing_response_missing_context_length(self) -> None:
         """context_length is None when missing from API response."""
         data = {
             "data": [
                 {
-                    "id": "anthropic/claude-sonnet-4.5",
+                    "id": "anthropic/claude-sonnet-4-6",
                     "pricing": {"prompt": "0.000003", "completion": "0.000015"},
                 },
             ]
         }
         result = _parse_pricing_response(data)
-        assert result["anthropic/claude-sonnet-4.5"].context_length is None
+        assert result["anthropic/claude-sonnet-4-6"].context_length is None
 
     @pytest.mark.asyncio
     async def test_get_context_length(self) -> None:
         """get_context_length returns context_length for a known model."""
         cache = PricingCache()
         cache._cache = {
-            "anthropic/claude-sonnet-4.5": ModelPricing(
+            "anthropic/claude-sonnet-4-6": ModelPricing(
                 prompt_price=0.000003,
                 completion_price=0.000015,
                 context_length=200000,
             ),
         }
-        ctx_len = await cache.get_context_length("anthropic/claude-sonnet-4.5")
+        ctx_len = await cache.get_context_length("anthropic/claude-sonnet-4-6")
         assert ctx_len == 200000
 
     @pytest.mark.asyncio
@@ -758,19 +758,19 @@ class TestContextLength:
         """get_context_length resolves vendor-native model IDs via alias map."""
         alias_map = {
             "claude": {
-                "openrouter": "anthropic/claude-sonnet-4.5",
-                "direct": "claude-sonnet-4-5-20250929",
+                "openrouter": "anthropic/claude-sonnet-4-6",
+                "direct": "claude-sonnet-4-6",
             },
         }
         cache = PricingCache(alias_map=alias_map)
         cache._cache = {
-            "anthropic/claude-sonnet-4.5": ModelPricing(
+            "anthropic/claude-sonnet-4-6": ModelPricing(
                 prompt_price=0.000003,
                 completion_price=0.000015,
                 context_length=200000,
             ),
         }
-        ctx_len = await cache.get_context_length("claude-sonnet-4-5-20250929")
+        ctx_len = await cache.get_context_length("claude-sonnet-4-6")
         assert ctx_len == 200000
 
 
@@ -792,7 +792,7 @@ def _make_costed_transcript() -> DebateTranscript:
                 round_type="initial",
                 responses=[
                     ModelResponse(
-                        model_id="anthropic/claude-sonnet-4.5",
+                        model_id="anthropic/claude-sonnet-4-6",
                         model_alias="claude",
                         round_number=0,
                         content="Claude response.",
@@ -815,7 +815,7 @@ def _make_costed_transcript() -> DebateTranscript:
             ),
         ],
         synthesis=ModelResponse(
-            model_id="anthropic/claude-sonnet-4.5",
+            model_id="anthropic/claude-sonnet-4-6",
             model_alias="claude",
             round_number=-1,
             content="Synthesis.",

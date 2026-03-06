@@ -9,7 +9,7 @@ Typical usage::
     from mutual_dissent.models import DebateTranscript, ModelResponse
 
     response = ModelResponse(
-        model_id="anthropic/claude-sonnet-4.5",
+        model_id="anthropic/claude-sonnet-4-6",
         model_alias="claude",
         round_number=0,
         content="...",
@@ -88,7 +88,7 @@ class ModelResponse:
     """Single response from one model in one round.
 
     Attributes:
-        model_id: OpenRouter model identifier (e.g. "anthropic/claude-sonnet-4.5").
+        model_id: OpenRouter model identifier (e.g. "anthropic/claude-sonnet-4-6").
         model_alias: Human-readable short name (e.g. "claude").
         round_number: 0 for initial, 1+ for reflection, -1 for synthesis.
         content: Full response text.

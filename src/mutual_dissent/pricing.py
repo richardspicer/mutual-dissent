@@ -11,7 +11,7 @@ Typical usage::
 
     cache = PricingCache(alias_map=config._model_aliases_v2)
     await cache.prefetch()
-    pricing = await cache.get_pricing("anthropic/claude-sonnet-4.5")
+    pricing = await cache.get_pricing("anthropic/claude-sonnet-4-6")
     cost = compute_response_cost(response, pricing)
 """
 
@@ -51,8 +51,8 @@ class PricingCache:
     ``prefetch()``), caches for the lifetime of the object. No API key
     required — the models endpoint is public.
 
-    Supports both OpenRouter model IDs (e.g. ``anthropic/claude-sonnet-4.5``)
-    and vendor-native model IDs (e.g. ``claude-sonnet-4-5-20250929``) by
+    Supports both OpenRouter model IDs (e.g. ``anthropic/claude-sonnet-4-6``)
+    and vendor-native model IDs (e.g. ``claude-sonnet-4-6``) by
     mapping through the provided alias configuration.
 
     Args:
@@ -89,8 +89,8 @@ class PricingCache:
 
         Args:
             model_id: Model ID — either OpenRouter format
-                (e.g. ``"anthropic/claude-sonnet-4.5"``) or vendor-native
-                (e.g. ``"claude-sonnet-4-5-20250929"``).
+                (e.g. ``"anthropic/claude-sonnet-4-6"``) or vendor-native
+                (e.g. ``"claude-sonnet-4-6"``).
 
         Returns:
             ModelPricing if found, None if model not in catalog or

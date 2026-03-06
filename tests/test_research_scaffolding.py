@@ -120,7 +120,7 @@ class TestRoutedRequestContext:
         """Context field defaults to None when not provided."""
         req = RoutedRequest(
             vendor=Vendor.ANTHROPIC,
-            model_id="claude-sonnet-4-5-20250929",
+            model_id="claude-sonnet-4-6",
             model_alias="claude",
             round_number=0,
             messages=[{"role": "user", "content": "Hello"}],
@@ -131,7 +131,7 @@ class TestRoutedRequestContext:
         """Context field accepts a string value."""
         req = RoutedRequest(
             vendor=Vendor.ANTHROPIC,
-            model_id="claude-sonnet-4-5-20250929",
+            model_id="claude-sonnet-4-6",
             model_alias="claude",
             round_number=0,
             messages=[],

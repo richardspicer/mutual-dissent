@@ -69,7 +69,7 @@ def _resolve_vendor(alias_or_id: str, config: Config) -> Vendor:
 
     Args:
         alias_or_id: Model alias (e.g. ``"claude"``) or full model ID
-            (e.g. ``"anthropic/claude-sonnet-4.5"``).
+            (e.g. ``"anthropic/claude-sonnet-4-6"``).
         config: Application configuration with alias mappings.
 
     Returns:
@@ -166,7 +166,7 @@ class ProviderRouter:
 
         Args:
             alias_or_id: Model alias (e.g. ``"claude"``) or full model ID
-                (e.g. ``"anthropic/claude-sonnet-4.5"``).
+                (e.g. ``"anthropic/claude-sonnet-4-6"``).
 
         Returns:
             A ``RoutingDecision`` recording the vendor, mode, and

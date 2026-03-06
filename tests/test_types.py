@@ -87,13 +87,13 @@ class TestRoutedRequest:
     def test_construction(self) -> None:
         req = RoutedRequest(
             vendor=Vendor.ANTHROPIC,
-            model_id="claude-sonnet-4-5-20250929",
+            model_id="claude-sonnet-4-6",
             model_alias="claude",
             round_number=0,
             messages=[{"role": "user", "content": "Hello"}],
         )
         assert req.vendor is Vendor.ANTHROPIC
-        assert req.model_id == "claude-sonnet-4-5-20250929"
+        assert req.model_id == "claude-sonnet-4-6"
         assert req.model_alias == "claude"
         assert req.round_number == 0
         assert len(req.messages) == 1
