@@ -121,16 +121,13 @@ knowledge_base:
   web_search:
     enabled: true
   linked_repositories:
-    - repository: "q-uestionable-ai/counteragent"
-      instructions: >-
-        MCP security vulnerability scanner. Shares core evidence models
-        and OWASP mapping patterns. CounterAgent discovers vulnerabilities
-        that CounterSignal generates payloads for.
     - repository: "q-uestionable-ai/countersignal"
       instructions: >-
-        Adversarial payload generator. RXP (RAG poisoning optimizer)
-        integration planned — poisoned documents feed into Mutual
-        Dissent vector stores for consensus poisoning research.
+        Content & supply chain attack toolkit. RXP (RAG poisoning
+        optimizer) integration planned — poisoned documents feed
+        into debate panelist contexts for consensus poisoning
+        research. Also related to counteragent (MCP security
+        scanner) which shares evidence models and OWASP mappings.
 
 code_generation:
   docstrings:
