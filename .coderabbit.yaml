@@ -88,6 +88,10 @@ reviews:
     unit_tests:
       enabled: true
 
+  pre_merge_checks:
+    docstrings:
+      mode: "off"
+
   tools:
     ruff:
       enabled: false  # CI handles this
