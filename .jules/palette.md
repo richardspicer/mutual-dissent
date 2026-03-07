@@ -1,0 +1,3 @@
+## 2024-03-07 - Empty State in NiceGUI Transcripts Browser
+**Learning:** NiceGUI allows creating full empty states by checking data arrays (`ds.all_summaries`) before the typical filtering step. By rendering a centered column with `w-full items-center justify-center gap-4 mt-20 opacity-50`, and using built-in Material icons (`ui.icon("inbox", size="4rem")`), we can give a clean empty state without importing new CSS libraries or using external assets.
+**Action:** Always check the initial data array length in table views and implement a user-friendly empty state with a call to action instead of just "no matches".

@@ -271,6 +271,14 @@ def render() -> None:
         controls.summary_label.update()
 
         with right_panel:
+            if not ds.all_summaries:
+                with ui.column().classes(
+                    "w-full h-full items-center justify-center gap-4 mt-20 opacity-50"
+                ):
+                    ui.icon("inbox", size="4rem")
+                    ui.label("No transcripts yet. Run a debate first!").classes("text-lg font-mono")
+                return
+
             if not filtered:
                 ui.label("No transcripts match the current filters.").classes(
                     "text-zinc-500 font-mono"
