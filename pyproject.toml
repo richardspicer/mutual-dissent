@@ -28,7 +28,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/q-uestionable-AI/mutual-dissent"
+Homepage = "https://richardspicer.io"
 Repository = "https://github.com/q-uestionable-AI/mutual-dissent"
 Issues = "https://github.com/q-uestionable-AI/mutual-dissent/issues"
 
@@ -38,10 +38,10 @@ dissent = "mutual_dissent.cli:main"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.8",
-    "mypy>=1.13",
-    "pre-commit>=4.0",
-    "pytest>=8.0",
+    "ruff>=0.15",
+    "mypy>=1.19",
+    "pre-commit>=4.3.0",
+    "pytest>=8.3.0",
     "pytest-asyncio>=1.3.0",
     "pytest-timeout>=2.4",
     "bandit>=1.9.4",
@@ -63,6 +63,7 @@ select = [
     "C90",
     "UP",
     "S",
+    "SIM",
 ]
 ignore = [
     "S101",
