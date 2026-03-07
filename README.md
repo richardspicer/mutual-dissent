@@ -3,7 +3,7 @@
 [![CI](https://github.com/q-uestionable-AI/mutual-dissent/actions/workflows/ci.yml/badge.svg)](https://github.com/q-uestionable-AI/mutual-dissent/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/q-uestionable-AI/mutual-dissent/actions/workflows/codeql.yml/badge.svg)](https://github.com/q-uestionable-AI/mutual-dissent/actions/workflows/codeql.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Docs](https://img.shields.io/badge/docs-mutual--dissent.dev-8b5cf6)](https://docs.mutual-dissent.dev)
 
@@ -26,7 +26,7 @@ Or from source:
 ```bash
 git clone https://github.com/q-uestionable-AI/mutual-dissent.git
 cd mutual-dissent
-uv sync
+uv sync --group dev
 ```
 
 ---
