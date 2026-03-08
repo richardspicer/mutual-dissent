@@ -97,6 +97,12 @@ judge model (currently the synthesizer) for accuracy/completeness scoring.
 Scores stored in `synthesis.analysis["ground_truth_score"]` and
 `transcript.metadata["scores"]`. Implemented in `scoring.py`.
 
+**Research** — Cross-tool integration subpackage (`research/`). Contains the
+`PayloadSource` protocol for programmatic debate input injection and the
+`ResearchFinding` adapter for CounterAgent-compatible finding export. Used by
+external tools (CounterSignal, CounterAgent) to drive debates programmatically
+and correlate findings across the security research portfolio.
+
 **Pricing** — Session-scoped pricing cache that fetches per-model token
 pricing from the OpenRouter `/api/v1/models` endpoint (public, no auth).
 Computes USD cost per response from input/output token counts. Handles
@@ -815,16 +821,22 @@ class ExperimentMetadata:
 Makes transcripts self-describing and queryable across tools. The research
 dashboard can group/filter by experiment.
 
-**Payload source protocol (future):**
-A minimal interface abstracting where debate inputs come from:
-`get_query() -> str` and `get_context(model_alias: str) -> str | None`.
-Default: user-provided query, no per-model context. Enables programmatic
-integration with CounterSignal payload libraries and CounterAgent inject output.
+**Payload source protocol (implemented):**
+`PayloadSource` ABC in `research/payload_source.py` abstracts where debate
+inputs come from: `get_query() -> str` and
+`get_context(model_alias: str) -> str | None`. `DefaultPayloadSource` wraps a
+user-provided query with no per-model context. `run_debate()` accepts an optional
+`payload_source` parameter — when provided, its query overrides the `query`
+parameter and its per-model context merges with any explicit `panelist_context`.
+Enables programmatic integration with CounterSignal payload libraries and
+CounterAgent inject output.
 
-**Finding output adapter (future):**
-Export experiment results in a format compatible with CounterAgent's Finding
-model (Severity, CVSS, OWASP/ATLAS category). Enables cross-tool finding
-correlation without hard dependencies.
+**Finding output adapter (implemented):**
+`ResearchFinding` dataclass in `research/finding_adapter.py` maps experiment
+results to CounterAgent's Finding schema. `FindingSeverity` enum provides
+CVSS-aligned severity levels. `to_dict()` produces JSON compatible with
+CounterAgent (maps `finding_id` → `rule_id`, `category` → `owasp_id`).
+Enables cross-tool finding correlation without hard dependencies.
 
 ### Ground Truth Scoring (Implemented)
 
