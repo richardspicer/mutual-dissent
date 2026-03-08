@@ -33,6 +33,7 @@ from mutual_dissent.prompts import (
     format_transcript_for_synthesis,
 )
 from mutual_dissent.providers.router import ProviderRouter
+from mutual_dissent.research.payload_source import PayloadSource
 from mutual_dissent.scoring import score_synthesis
 
 logger = logging.getLogger(__name__)
@@ -50,6 +51,7 @@ async def run_debate(
     ground_truth: str | None = None,
     panelist_context: dict[str, str] | None = None,
     on_round_complete: OnRoundComplete = None,
+    payload_source: PayloadSource | None = None,
 ) -> DebateTranscript:
     """Execute a full multi-model debate.
 
@@ -73,6 +75,11 @@ async def run_debate(
         on_round_complete: Optional async callback invoked after each round
             completes (initial, reflection, synthesis). Receives the completed
             DebateRound. Exceptions are logged but do not abort the debate.
+        payload_source: Optional programmatic source for debate query and
+            per-model context. When provided, ``payload_source.get_query()``
+            overrides the ``query`` parameter, and
+            ``payload_source.get_context(alias)`` merges with (does not
+            replace) any explicit ``panelist_context``.
 
     Returns:
         Complete DebateTranscript with all rounds and synthesis.
@@ -80,6 +87,13 @@ async def run_debate(
     Raises:
         ValueError: If the panel is empty or no provider is available.
     """
+    # Resolve payload source: override query and merge context.
+    if payload_source is not None:
+        query = payload_source.get_query()
+        panelist_context = _merge_payload_context(
+            payload_source, panel or config.default_panel, panelist_context
+        )
+
     # Resolve defaults.
     panel_aliases = panel or config.default_panel
     synth_alias = synthesizer or config.default_synthesizer
@@ -379,6 +393,47 @@ async def _run_reflection_round(
         )
 
     return await router.complete_parallel(requests)
+
+
+def _merge_payload_context(
+    payload_source: PayloadSource,
+    panel_aliases: list[str],
+    panelist_context: dict[str, str] | None,
+) -> dict[str, str] | None:
+    """Merge PayloadSource per-model context with explicit panelist_context.
+
+    For each alias, combines payload_source context (first) with explicit
+    panelist_context (second). If both provide context for the same alias,
+    they are concatenated with a double newline separator.
+
+    Args:
+        payload_source: The programmatic payload source.
+        panel_aliases: List of model aliases to query for context.
+        panelist_context: Explicit per-panelist context mapping, or None.
+
+    Returns:
+        Merged context mapping, or None if no context was produced.
+    """
+    merged: dict[str, str] = {}
+    for alias in panel_aliases:
+        parts: list[str] = []
+        ps_ctx = payload_source.get_context(alias)
+        if ps_ctx:
+            parts.append(ps_ctx)
+        if panelist_context:
+            explicit_ctx = panelist_context.get(alias)
+            if explicit_ctx:
+                parts.append(explicit_ctx)
+        if parts:
+            merged[alias] = "\n\n".join(parts)
+
+    # Preserve any explicit context for aliases not in the panel.
+    if panelist_context:
+        for alias, ctx in panelist_context.items():
+            if alias not in merged and ctx:
+                merged[alias] = ctx
+
+    return merged or None
 
 
 def _inject_context(
