@@ -213,5 +213,8 @@ __marimo__/
 .claude/
 CLAUDE.md
 
+# Codex
+AGENTS.md
+
 # NiceGUI
 .nicegui/
