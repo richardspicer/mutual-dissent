@@ -4,6 +4,21 @@ All notable changes to Mutual Dissent are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] — 2026-03-08
+
+Cross-tool research scaffolding: Payload Source Protocol and Finding Output Adapter.
+Completes architectural integration points 4 and 5, enabling programmatic payload
+injection and cross-tool finding correlation.
+
+### Added
+
+#### Research Platform
+- Payload Source Protocol: `PayloadSource` ABC with `get_query()` and `get_context()` interface
+- `DefaultPayloadSource` implementation for standard user-provided queries
+- `run_debate()` accepts optional `payload_source` parameter for programmatic input
+- `ResearchFinding` dataclass with CounterAgent-compatible JSON export via `to_dict()`
+- `FindingSeverity` enum matching CounterAgent severity levels
+
 ## [0.1.0] — 2026-03-04
 
 First public release. Cross-vendor multi-model debate and consensus engine with CLI,
@@ -54,4 +69,5 @@ web GUI, and research dashboard.
 - Pre-commit hooks: ruff, mypy, gitleaks, trailing whitespace
 - 325+ tests
 
+[0.2.0]: https://github.com/q-uestionable-AI/mutual-dissent/releases/tag/v0.2.0
 [0.1.0]: https://github.com/q-uestionable-AI/mutual-dissent/releases/tag/v0.1.0
