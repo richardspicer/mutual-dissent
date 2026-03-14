@@ -99,9 +99,9 @@ Scores stored in `synthesis.analysis["ground_truth_score"]` and
 
 **Research** — Cross-tool integration subpackage (`research/`). Contains the
 `PayloadSource` protocol for programmatic debate input injection and the
-`ResearchFinding` adapter for CounterAgent-compatible finding export. Used by
-external tools (CounterSignal, CounterAgent) to drive debates programmatically
-and correlate findings across the security research portfolio.
+`ResearchFinding` adapter for structured finding export. Used by
+external tools to drive debates programmatically
+and correlate findings across research campaigns.
 
 **Pricing** — Session-scoped pricing cache that fetches per-model token
 pricing from the OpenRouter `/api/v1/models` endpoint (public, no auth).
@@ -353,7 +353,7 @@ from datetime import datetime
 class ExperimentMetadata:
     """Metadata linking a debate to a research experiment."""
     experiment_id: str              # Groups related runs
-    source_tool: str = "manual"     # "countersignal" | "counteragent" | "manual"
+    source_tool: str = "manual"     # Originating tool or "manual"
     campaign_id: str | None = None  # Links to external campaign/scan
     condition: str = ""             # Experimental variable description
     variables: dict = field(default_factory=dict)  # Parameter values
@@ -811,7 +811,7 @@ both Rich terminal and markdown output when present.
 @dataclass
 class ExperimentMetadata:
     experiment_id: str              # Groups related runs
-    source_tool: str = "manual"     # "countersignal" | "counteragent" | "manual"
+    source_tool: str = "manual"     # Originating tool or "manual"
     campaign_id: str | None = None  # Links to CounterSignal campaign or CounterAgent scan
     condition: str = ""             # Experimental variable description
     variables: dict = field(default_factory=dict)  # Parameter values for this run

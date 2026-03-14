@@ -29,12 +29,11 @@ class ExperimentMetadata:
     """Metadata linking a debate to a research experiment.
 
     Serializes into ``DebateTranscript.metadata["experiment"]`` to track
-    cross-tool research runs (CounterSignal, CounterAgent, manual).
+    research runs from external tools or manual experiments.
 
     Attributes:
         experiment_id: Groups related debate runs under one experiment.
-        source_tool: Originating tool — "countersignal", "counteragent",
-            or "manual".
+        source_tool: Originating tool identifier or "manual".
         campaign_id: Optional link to an external campaign or scan ID.
         condition: Description of the experimental variable being tested.
         variables: Key-value pairs of parameter values for this run.
