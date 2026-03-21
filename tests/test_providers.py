@@ -227,7 +227,7 @@ class TestCompleteWithMessages:
             provider._client.post = mock_post
 
             result = await provider.complete(
-                "openai/gpt-5.2",
+                "openai/gpt-5.4",
                 messages=messages,
                 model_alias="gpt",
             )

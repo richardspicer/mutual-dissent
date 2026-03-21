@@ -62,7 +62,7 @@ class OpenRouterProvider(Provider):
 
         async with OpenRouterProvider(api_key="sk-or-...") as provider:
             resp = await provider.complete(
-                "openai/gpt-5.2", prompt="What is 2+2?",
+                "openai/gpt-5.4", prompt="What is 2+2?",
             )
             print(resp.content)
     """

@@ -31,35 +31,48 @@ CONFIG_PATH = APP_DIR / "config.toml"
 TRANSCRIPT_DIR = APP_DIR / "transcripts"
 
 # Default model aliases → OpenRouter model IDs.
-# Verified against OpenRouter offerings as of 2026-03-06.
+# Verified against OpenRouter offerings as of 2026-03-21.
 DEFAULT_MODEL_ALIASES: dict[str, str] = {
+    "claude-opus": "anthropic/claude-opus-4.6",
     "claude": "anthropic/claude-sonnet-4-6",
-    "gpt": "openai/gpt-5.2",
-    "gemini": "google/gemini-2.5-pro",
-    "grok": "x-ai/grok-4",
+    "gpt": "openai/gpt-5.4",
+    "gemini": "google/gemini-3.1-pro-preview",
+    "grok": "x-ai/grok-4.20-beta",
+    "nemotron": "nvidia/nemotron-3-super-120b-a12b",
 }
 
 # Phase 1.5 dual-ID aliases: alias → {"openrouter": ..., "direct": ...}.
 # The "direct" key is the vendor-native model ID for direct API calls.
+# NOTE: Anthropic model IDs differ between OpenRouter (dots: claude-opus-4.6)
+# and the direct Messages API (dashes: claude-opus-4-6). The "direct" key
+# uses the dash format matching the Anthropic API convention.
 DEFAULT_MODEL_ALIASES_V2: dict[str, dict[str, str]] = {
+    "claude-opus": {
+        "openrouter": "anthropic/claude-opus-4.6",
+        "direct": "claude-opus-4-6",
+    },
     "claude": {
         "openrouter": "anthropic/claude-sonnet-4-6",
         "direct": "claude-sonnet-4-6",  # Floating alias, not snapshot-dated
     },
     "gpt": {
-        "openrouter": "openai/gpt-5.2",
-        "direct": "gpt-5.2",
+        "openrouter": "openai/gpt-5.4",
+        "direct": "gpt-5.4",
     },
     "gemini": {
-        "openrouter": "google/gemini-2.5-pro",
+        "openrouter": "google/gemini-3.1-pro-preview",
+        "direct": "gemini-3.1-pro-preview",
     },
     "grok": {
-        "openrouter": "x-ai/grok-4",
+        "openrouter": "x-ai/grok-4.20-beta",
+    },
+    "nemotron": {
+        "openrouter": "nvidia/nemotron-3-super-120b-a12b",
     },
 }
 
-DEFAULT_PANEL = ["claude", "gpt", "gemini", "grok"]
-DEFAULT_SYNTHESIZER = "claude"
+DEFAULT_PANEL = ["claude-opus", "gpt", "gemini", "grok", "nemotron"]
+DEFAULT_SYNTHESIZER = "claude-opus"
 DEFAULT_ROUNDS = 1
 MAX_ROUNDS = 3
 

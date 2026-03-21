@@ -27,9 +27,11 @@ console = Console()
 # Model alias → color mapping for visual distinction.
 MODEL_COLORS: dict[str, str] = {
     "claude": "magenta",
+    "claude-opus": "bright_magenta",
     "gpt": "green",
     "gemini": "cyan",
     "grok": "yellow",
+    "nemotron": "bright_green",
 }
 
 DEFAULT_COLOR = "white"

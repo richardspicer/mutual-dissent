@@ -28,6 +28,7 @@ class Vendor(StrEnum):
     OPENAI = "openai"
     GOOGLE = "google"
     XAI = "xai"
+    NVIDIA = "nvidia"
     GROQ = "groq"
     OPENROUTER = "openrouter"
     OLLAMA = "ollama"

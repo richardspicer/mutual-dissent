@@ -112,7 +112,13 @@ def _render_form_panel(config: Config) -> _FormWidgets:
 
     ui.label("Panel Models").classes("font-mono text-sm text-zinc-400 mt-6 mb-3")
     panel_checks: dict[str, Any] = {}
-    color_map = {"claude": "fuchsia", "gpt": "emerald", "gemini": "cyan", "grok": "amber"}
+    color_map = {
+        "claude": "fuchsia",
+        "gpt": "emerald",
+        "gemini": "cyan",
+        "grok": "amber",
+        "nemotron": "lime",
+    }
     with ui.row().classes("gap-4 flex-wrap"):
         for alias in available_aliases:
             base = alias.split("-")[0]

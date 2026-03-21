@@ -26,7 +26,7 @@ api_key = "sk-or-phase1"
 
 [model_aliases]
 claude = "anthropic/claude-sonnet-4-6"
-gpt = "openai/gpt-5.2"
+gpt = "openai/gpt-5.4"
 
 [defaults]
 panel = ["claude", "gpt"]
@@ -50,9 +50,9 @@ gemini = "auto"
 [model_aliases]
 claude.openrouter = "anthropic/claude-sonnet-4-6"
 claude.direct = "claude-sonnet-4-6"
-gpt.openrouter = "openai/gpt-5.2"
-gpt.direct = "gpt-5.2"
-gemini.openrouter = "google/gemini-2.5-pro"
+gpt.openrouter = "openai/gpt-5.4"
+gpt.direct = "gpt-5.4"
+gemini.openrouter = "google/gemini-3.1-pro-preview"
 
 [defaults]
 panel = ["claude", "gpt", "gemini"]
@@ -66,7 +66,7 @@ api_key = "sk-or-mixed"
 [model_aliases]
 claude.openrouter = "anthropic/claude-sonnet-4-6"
 claude.direct = "claude-sonnet-4-6"
-gpt = "openai/gpt-5.2"
+gpt = "openai/gpt-5.4"
 """
 
 PROVIDERS_ONLY_TOML = """\
@@ -145,8 +145,8 @@ class TestPhase15SchemaLoading:
         config = _load_with_config(config_dir, PHASE_1_5_TOML)
         assert config.resolve_model("claude") == "anthropic/claude-sonnet-4-6"
         assert config.resolve_model("claude", direct=True) == "claude-sonnet-4-6"
-        assert config.resolve_model("gpt") == "openai/gpt-5.2"
-        assert config.resolve_model("gpt", direct=True) == "gpt-5.2"
+        assert config.resolve_model("gpt") == "openai/gpt-5.4"
+        assert config.resolve_model("gpt", direct=True) == "gpt-5.4"
 
     def test_defaults_loaded(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, PHASE_1_5_TOML)
@@ -171,7 +171,7 @@ class TestPhase1BackwardCompat:
     def test_flat_aliases_still_work(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, PHASE_1_TOML)
         assert config.resolve_model("claude") == "anthropic/claude-sonnet-4-6"
-        assert config.resolve_model("gpt") == "openai/gpt-5.2"
+        assert config.resolve_model("gpt") == "openai/gpt-5.4"
 
     def test_api_key_from_top_level(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, PHASE_1_TOML)
@@ -185,7 +185,7 @@ class TestPhase1BackwardCompat:
     def test_resolve_panel_still_works(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, PHASE_1_TOML)
         ids = config.resolve_panel(["claude", "gpt"])
-        assert ids == ["anthropic/claude-sonnet-4-6", "openai/gpt-5.2"]
+        assert ids == ["anthropic/claude-sonnet-4-6", "openai/gpt-5.4"]
 
     def test_flat_aliases_resolve_model_direct_falls_back(self, config_dir: Path) -> None:
         """Phase 1 flat alias: direct=True returns OpenRouter ID as fallback."""
@@ -214,11 +214,11 @@ class TestMixedAliases:
 
     def test_flat_alias_still_resolves(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, MIXED_TOML)
-        assert config.resolve_model("gpt") == "openai/gpt-5.2"
+        assert config.resolve_model("gpt") == "openai/gpt-5.4"
 
     def test_flat_alias_direct_falls_back(self, config_dir: Path) -> None:
         config = _load_with_config(config_dir, MIXED_TOML)
-        assert config.resolve_model("gpt", direct=True) == "openai/gpt-5.2"
+        assert config.resolve_model("gpt", direct=True) == "openai/gpt-5.4"
 
 
 # ---------------------------------------------------------------------------
@@ -288,7 +288,7 @@ class TestResolveModel:
     def test_no_direct_id_falls_back_to_openrouter(self, config_dir: Path) -> None:
         """gemini has no .direct in PHASE_1_5_TOML, should fall back."""
         config = _load_with_config(config_dir, PHASE_1_5_TOML)
-        assert config.resolve_model("gemini", direct=True) == "google/gemini-2.5-pro"
+        assert config.resolve_model("gemini", direct=True) == "google/gemini-3.1-pro-preview"
 
     def test_full_model_id_passthrough(self, config_dir: Path) -> None:
         """Full model IDs with slash pass through unchanged."""
@@ -472,8 +472,8 @@ class TestWriteConfig:
                 "direct": "claude-sonnet-4-6",
             },
             "gpt": {
-                "openrouter": "openai/gpt-5.2",
-                "direct": "gpt-5.2",
+                "openrouter": "openai/gpt-5.4",
+                "direct": "gpt-5.4",
             },
         }
         config = Config(_model_aliases_v2=aliases_v2)
@@ -484,8 +484,8 @@ class TestWriteConfig:
 
         assert loaded.resolve_model("claude") == "anthropic/claude-sonnet-4-6"
         assert loaded.resolve_model("claude", direct=True) == "claude-sonnet-4-6"
-        assert loaded.resolve_model("gpt") == "openai/gpt-5.2"
-        assert loaded.resolve_model("gpt", direct=True) == "gpt-5.2"
+        assert loaded.resolve_model("gpt") == "openai/gpt-5.4"
+        assert loaded.resolve_model("gpt", direct=True) == "gpt-5.4"
 
     def test_skips_env_sourced_keys(self, tmp_path: Path) -> None:
         """write_config excludes keys that came from environment variables."""
