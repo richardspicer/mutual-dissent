@@ -28,6 +28,7 @@ class TestVendor:
         assert Vendor.OPENAI.value == "openai"
         assert Vendor.GOOGLE.value == "google"
         assert Vendor.XAI.value == "xai"
+        assert Vendor.NVIDIA.value == "nvidia"
         assert Vendor.GROQ.value == "groq"
         assert Vendor.OPENROUTER.value == "openrouter"
         assert Vendor.OLLAMA.value == "ollama"

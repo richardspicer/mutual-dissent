@@ -99,6 +99,10 @@ class TestResolveVendor:
         config = Config()
         assert _resolve_vendor("x-ai/grok-4.20-beta", config) == Vendor.XAI
 
+    def test_full_model_id_nvidia(self) -> None:
+        config = Config()
+        assert _resolve_vendor("nvidia/nemotron-3-super-120b-a12b", config) == Vendor.NVIDIA
+
     def test_unknown_prefix_with_slash(self) -> None:
         config = Config()
         assert _resolve_vendor("unknown-vendor/some-model", config) == Vendor.OPENROUTER
@@ -192,6 +196,14 @@ class TestRoutingDecisions:
         config.providers["openai"] = "sk-openai-test"
         router = ProviderRouter(config)
         decision = router.route("gpt")
+        assert decision.via_openrouter is True
+
+    def test_auto_mode_nemotron_falls_back_to_openrouter(self) -> None:
+        """nemotron resolves to NVIDIA but no direct provider exists, so auto falls back."""
+        config = _make_config(routing={"default_mode": "auto"})
+        router = ProviderRouter(config)
+        decision = router.route("nemotron")
+        assert decision.vendor == Vendor.NVIDIA
         assert decision.via_openrouter is True
 
     def test_per_alias_override(self) -> None:
