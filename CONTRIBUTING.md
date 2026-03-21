@@ -46,10 +46,9 @@ mutual-dissent --help
 Pre-commit hooks run automatically on every `git commit`. They enforce:
 
 - **File hygiene** — trailing whitespace, EOF newlines, YAML/TOML syntax, large file detection, merge conflict markers
-- **No commits to main** — all work must happen on feature branches
 - **Ruff** — linting (pycodestyle, pyflakes, isort, bugbear, complexity, pyupgrade, bandit) and formatting
 - **Gitleaks** — secrets detection (API keys, tokens, passwords)
-- **Mypy** — type checking with `check_untyped_defs` enabled
+- **Mypy** — type checking with `disallow_untyped_defs` and `check_untyped_defs` enabled
 
 If a hook fails, the commit is blocked. Auto-fixable issues (whitespace, import order, formatting) are corrected automatically — just re-stage and commit again.
 
@@ -73,7 +72,7 @@ pre-commit run --all-files      # Run all hooks against entire repo
 
 ## Git Workflow
 
-**Never work directly on main.** The pre-commit hook blocks this.
+**Never work directly on main.** Branch discipline is manual — always create a feature branch before making code changes.
 
 ```powershell
 # Start work
