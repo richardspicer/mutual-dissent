@@ -89,15 +89,19 @@ class TestResolveVendor:
 
     def test_full_model_id_openai(self) -> None:
         config = Config()
-        assert _resolve_vendor("openai/gpt-5.2", config) == Vendor.OPENAI
+        assert _resolve_vendor("openai/gpt-5.4", config) == Vendor.OPENAI
 
     def test_full_model_id_google(self) -> None:
         config = Config()
-        assert _resolve_vendor("google/gemini-2.5-pro", config) == Vendor.GOOGLE
+        assert _resolve_vendor("google/gemini-3.1-pro-preview", config) == Vendor.GOOGLE
 
     def test_full_model_id_xai(self) -> None:
         config = Config()
-        assert _resolve_vendor("x-ai/grok-4", config) == Vendor.XAI
+        assert _resolve_vendor("x-ai/grok-4.20-beta", config) == Vendor.XAI
+
+    def test_full_model_id_nvidia(self) -> None:
+        config = Config()
+        assert _resolve_vendor("nvidia/nemotron-3-super-120b-a12b", config) == Vendor.NVIDIA
 
     def test_unknown_prefix_with_slash(self) -> None:
         config = Config()
@@ -192,6 +196,14 @@ class TestRoutingDecisions:
         config.providers["openai"] = "sk-openai-test"
         router = ProviderRouter(config)
         decision = router.route("gpt")
+        assert decision.via_openrouter is True
+
+    def test_auto_mode_nemotron_falls_back_to_openrouter(self) -> None:
+        """nemotron resolves to NVIDIA but no direct provider exists, so auto falls back."""
+        config = _make_config(routing={"default_mode": "auto"})
+        router = ProviderRouter(config)
+        decision = router.route("nemotron")
+        assert decision.vendor == Vendor.NVIDIA
         assert decision.via_openrouter is True
 
     def test_per_alias_override(self) -> None:
@@ -455,7 +467,7 @@ class TestMixedParallel:
         )
         async with ProviderRouter(config) as router:
             anthropic_resp = _mock_response("claude-sonnet-4-6", "claude")
-            openrouter_resp = _mock_response("openai/gpt-5.2", "gpt")
+            openrouter_resp = _mock_response("openai/gpt-5.4", "gpt")
 
             router._providers["anthropic"].complete = AsyncMock(  # type: ignore[assignment]
                 return_value=anthropic_resp,
@@ -482,7 +494,7 @@ class TestMixedParallel:
         config = _make_config(openrouter_key="sk-or-test")
         async with ProviderRouter(config) as router:
             resp_claude = _mock_response("anthropic/claude-sonnet-4-6", "claude")
-            resp_gpt = _mock_response("openai/gpt-5.2", "gpt")
+            resp_gpt = _mock_response("openai/gpt-5.4", "gpt")
 
             call_count = 0
 

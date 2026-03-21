@@ -52,6 +52,7 @@ _PREFIX_TO_VENDOR: dict[str, Vendor] = {
     "openai": Vendor.OPENAI,
     "google": Vendor.GOOGLE,
     "x-ai": Vendor.XAI,
+    "nvidia": Vendor.NVIDIA,
     "groq": Vendor.GROQ,
 }
 

@@ -75,7 +75,7 @@ class TestRenderConfigTestSuccess:
         """Smoke test — render_config_test doesn't raise."""
         results = [
             _make_result("claude", Vendor.ANTHROPIC, False, "claude-sonnet-4-6"),
-            _make_result("gpt", Vendor.OPENAI, True, "openai/gpt-5.2"),
+            _make_result("gpt", Vendor.OPENAI, True, "openai/gpt-5.4"),
         ]
         # Should not raise.
         render_config_test(results)
@@ -88,8 +88,8 @@ class TestRenderConfigTestSuccess:
 
         results = [
             _make_result("claude", Vendor.ANTHROPIC, False, "claude-sonnet-4-6"),
-            _make_result("gpt", Vendor.OPENAI, True, "openai/gpt-5.2"),
-            _make_result("gemini", Vendor.GOOGLE, True, "google/gemini-2.5-pro"),
+            _make_result("gpt", Vendor.OPENAI, True, "openai/gpt-5.4"),
+            _make_result("gemini", Vendor.GOOGLE, True, "google/gemini-3.1-pro-preview"),
         ]
 
         buf = StringIO()
@@ -173,7 +173,7 @@ class TestRenderConfigTestSuccess:
         from rich.console import Console
 
         results = [
-            _make_result("gpt", Vendor.OPENAI, True, "openai/gpt-5.2"),
+            _make_result("gpt", Vendor.OPENAI, True, "openai/gpt-5.4"),
         ]
 
         buf = StringIO()
@@ -206,14 +206,14 @@ class TestRenderConfigTestError:
                 "grok",
                 Vendor.XAI,
                 True,
-                "x-ai/grok-4",
+                "x-ai/grok-4.20-beta",
                 latency_ms=None,
                 error="401 Unauthorized",
             ),
         ]
 
         buf = StringIO()
-        test_console = Console(file=buf, force_terminal=True)
+        test_console = Console(file=buf, force_terminal=True, width=120)
 
         import mutual_dissent.display as display_mod
 
@@ -238,7 +238,7 @@ class TestRenderConfigTestError:
                 "grok",
                 Vendor.XAI,
                 True,
-                "x-ai/grok-4",
+                "x-ai/grok-4.20-beta",
                 latency_ms=None,
                 error="timeout",
             ),
@@ -271,7 +271,7 @@ class TestRenderConfigTestError:
                 "grok",
                 Vendor.XAI,
                 True,
-                "x-ai/grok-4",
+                "x-ai/grok-4.20-beta",
                 latency_ms=None,
                 error="connection error",
             ),

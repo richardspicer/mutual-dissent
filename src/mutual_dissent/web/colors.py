@@ -15,6 +15,11 @@ MODEL_CSS_COLORS: dict[str, dict[str, str]] = {
         "text": "text-fuchsia-400",
         "bg": "bg-fuchsia-500/10",
     },
+    "claude-opus": {
+        "border": "border-purple-500",
+        "text": "text-purple-400",
+        "bg": "bg-purple-500/10",
+    },
     "gpt": {
         "border": "border-emerald-500",
         "text": "text-emerald-400",
@@ -29,6 +34,11 @@ MODEL_CSS_COLORS: dict[str, dict[str, str]] = {
         "border": "border-amber-500",
         "text": "text-amber-400",
         "bg": "bg-amber-500/10",
+    },
+    "nemotron": {
+        "border": "border-lime-500",
+        "text": "text-lime-400",
+        "bg": "bg-lime-500/10",
     },
 }
 

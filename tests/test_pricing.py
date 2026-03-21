@@ -177,7 +177,7 @@ class TestParsePricingResponse:
                     "pricing": {"prompt": "0.000003", "completion": "0.000015"},
                 },
                 {
-                    "id": "openai/gpt-5.2",
+                    "id": "openai/gpt-5.4",
                     "pricing": {"prompt": "0.000005", "completion": "0.000010"},
                 },
             ]
@@ -186,7 +186,7 @@ class TestParsePricingResponse:
         assert len(result) == 2
         assert result["anthropic/claude-sonnet-4-6"].prompt_price == 0.000003
         assert result["anthropic/claude-sonnet-4-6"].completion_price == 0.000015
-        assert result["openai/gpt-5.2"].prompt_price == 0.000005
+        assert result["openai/gpt-5.4"].prompt_price == 0.000005
 
     def test_missing_pricing_skipped(self) -> None:
         """Models without pricing are silently skipped."""
@@ -238,7 +238,7 @@ def _mock_models_response() -> httpx.Response:
                 "context_length": 200000,
             },
             {
-                "id": "openai/gpt-5.2",
+                "id": "openai/gpt-5.4",
                 "pricing": {"prompt": "0.000005", "completion": "0.000010"},
                 "context_length": 128000,
             },
@@ -291,7 +291,7 @@ class TestPricingCache:
         try:
             httpx.AsyncClient = lambda **kwargs: mock_client  # type: ignore[assignment,misc]
             await cache.get_pricing("anthropic/claude-sonnet-4-6")
-            await cache.get_pricing("openai/gpt-5.2")
+            await cache.get_pricing("openai/gpt-5.4")
         finally:
             httpx.AsyncClient = original
 
@@ -433,7 +433,7 @@ class TestComputeStatsWithCost:
             "anthropic/claude-sonnet-4-6": ModelPricing(
                 prompt_price=0.000003, completion_price=0.000015
             ),
-            "openai/gpt-5.2": ModelPricing(prompt_price=0.000005, completion_price=0.000010),
+            "openai/gpt-5.4": ModelPricing(prompt_price=0.000005, completion_price=0.000010),
         }
 
         stats = await _compute_stats(transcript, cache)
@@ -802,7 +802,7 @@ def _make_costed_transcript() -> DebateTranscript:
                         output_tokens=200,
                     ),
                     ModelResponse(
-                        model_id="openai/gpt-5.2",
+                        model_id="openai/gpt-5.4",
                         model_alias="gpt",
                         round_number=0,
                         content="GPT response.",

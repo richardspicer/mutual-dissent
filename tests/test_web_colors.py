@@ -15,11 +15,11 @@ class TestModelCssColors:
         assert "text" in MODEL_CSS_COLORS["claude"]
         assert "bg" in MODEL_CSS_COLORS["claude"]
 
-    def test_all_four_models_present(self) -> None:
-        """All four default models have entries."""
+    def test_all_models_present(self) -> None:
+        """All default models have entries."""
         from mutual_dissent.web.colors import MODEL_CSS_COLORS
 
-        for alias in ("claude", "gpt", "gemini", "grok"):
+        for alias in ("claude", "claude-opus", "gpt", "gemini", "grok", "nemotron"):
             assert alias in MODEL_CSS_COLORS
 
     def test_get_css_colors_known_alias(self) -> None:

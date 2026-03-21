@@ -20,14 +20,15 @@ from mutual_dissent.types import RoutedRequest, RoutingDecision, Vendor
 class TestVendor:
     """Vendor enum has correct values and serialization behavior."""
 
-    def test_all_seven_members(self) -> None:
-        assert len(Vendor) == 7
+    def test_all_eight_members(self) -> None:
+        assert len(Vendor) == 8
 
     def test_expected_values(self) -> None:
         assert Vendor.ANTHROPIC.value == "anthropic"
         assert Vendor.OPENAI.value == "openai"
         assert Vendor.GOOGLE.value == "google"
         assert Vendor.XAI.value == "xai"
+        assert Vendor.NVIDIA.value == "nvidia"
         assert Vendor.GROQ.value == "groq"
         assert Vendor.OPENROUTER.value == "openrouter"
         assert Vendor.OLLAMA.value == "ollama"
@@ -102,7 +103,7 @@ class TestRoutedRequest:
         """round_number -1 indicates synthesis."""
         req = RoutedRequest(
             vendor=Vendor.OPENAI,
-            model_id="gpt-5.2",
+            model_id="gpt-5.4",
             model_alias="gpt",
             round_number=-1,
             messages=[],
@@ -117,7 +118,7 @@ class TestRoutedRequest:
         ]
         req = RoutedRequest(
             vendor=Vendor.GOOGLE,
-            model_id="gemini-2.5-pro",
+            model_id="gemini-3.1-pro-preview",
             model_alias="gemini",
             round_number=1,
             messages=messages,
