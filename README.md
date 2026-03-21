@@ -4,10 +4,10 @@
 [![CI](https://github.com/richardspicer/mutual-dissent/actions/workflows/ci.yml/badge.svg)](https://github.com/richardspicer/mutual-dissent/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/richardspicer/mutual-dissent/actions/workflows/codeql.yml/badge.svg)](https://github.com/richardspicer/mutual-dissent/actions/workflows/codeql.yml)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/richardspicer/mutual-dissent?utm_source=oss&utm_medium=github&utm_campaign=richardspicer%2Fmutual-dissent&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
----
+
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
----
+
 [![Docs](https://img.shields.io/badge/docs-mutual--dissent.dev-8b5cf6)](https://docs.mutual-dissent.dev)
 
 **Cross-vendor multi-model debate and consensus engine for AI response distillation.**
