@@ -61,4 +61,5 @@ jobs:
         run: uv run bandit -r src/ -c pyproject.toml
 
       - name: pip-audit (dependency vulnerabilities)
-        run: uv run pip-audit
+        # CVE-2026-4539: pygments ReDoS in AdlLexer — no fix available upstream (2.19.2 is latest)
+        run: uv run pip-audit --ignore-vuln CVE-2026-4539
