@@ -29,31 +29,9 @@ jobs:
           path: dist/
           if-no-files-found: error
 
-  publish-to-testpypi:
-    name: Publish to TestPyPI
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: testpypi
-      url: https://test.pypi.org/p/mutual-dissent
-    permissions:
-      id-token: write
-      actions: read
-    steps:
-      - name: Download dist artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: python-package-distributions
-          path: dist/
-
-      - name: Publish to TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
-
   publish-to-pypi:
     name: Publish to PyPI
-    needs: publish-to-testpypi
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: pypi
