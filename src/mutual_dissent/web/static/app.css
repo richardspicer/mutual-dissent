@@ -1,0 +1,357 @@
+/* ============================================================
+   Mutual Dissent — DaisyUI Dark Theme Overrides
+   ============================================================ */
+
+[data-theme="dark"] {
+  --b1: 0.22 0.032 257;   /* card surfaces */
+  --b2: 0.16 0.022 260;   /* slightly darker */
+  --b3: 0.10 0.012 270;   /* page background */
+  --bc: 0.87 0.022 253;   /* light text */
+  --p: 0.68 0.132 202;    /* teal primary */
+  --pc: 0.98 0.005 250;   /* primary content */
+  --s: 0.69 0.163 293;    /* purple secondary */
+  --sc: 0.98 0.005 290;   /* secondary content */
+  --a: 0.69 0.163 293;    /* accent — purple */
+  --ac: 0.98 0.005 290;
+  --rounded-box: 10px;
+}
+
+
+/* ============================================================
+   Navigation
+   ============================================================ */
+
+.nav-link {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: oklch(0.75 0.02 253);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.nav-link:hover {
+  background: oklch(0.69 0.163 293 / 0.08);
+  color: oklch(0.85 0.02 253);
+}
+
+.nav-link.active {
+  background: oklch(0.69 0.163 293 / 0.12);
+  border-color: oklch(0.69 0.163 293 / 0.25);
+  color: oklch(0.68 0.132 202);
+}
+
+
+/* ============================================================
+   Panel (reusable card component)
+   ============================================================ */
+
+.panel {
+  background: oklch(1 0 0 / 0.08);
+  border: 1px solid oklch(0.69 0.163 293 / 0.25);
+  border-radius: 12px;
+  box-shadow: 0 0 12px oklch(0.69 0.163 293 / 0.06);
+}
+
+.synthesis-panel {
+  border-color: oklch(0.69 0.163 293 / 0.4);
+  background: oklch(0.69 0.163 293 / 0.06);
+}
+
+
+/* ============================================================
+   Chat Bubbles
+   ============================================================ */
+
+.debate-bubble {
+  background: oklch(1 0 0 / 0.08) !important;
+  color: #e2e8f0;
+  border: 1px solid oklch(1 0 0 / 0.1);
+}
+
+.synthesis-bubble {
+  border-color: oklch(0.69 0.163 293 / 0.4) !important;
+  background: oklch(0.69 0.163 293 / 0.08) !important;
+}
+
+/* Per-model border accents */
+.model-claude-border { border-left: 3px solid oklch(0.7 0.2 320); }
+.model-claude-opus-border { border-left: 3px solid oklch(0.75 0.22 310); }
+.model-gpt-border { border-left: 3px solid oklch(0.7 0.18 155); }
+.model-gemini-border { border-left: 3px solid oklch(0.7 0.15 200); }
+.model-grok-border { border-left: 3px solid oklch(0.75 0.16 85); }
+.model-nemotron-border { border-left: 3px solid oklch(0.75 0.18 140); }
+.model-default-border { border-left: 3px solid oklch(0.6 0.02 253); }
+
+/* Per-model text colors */
+.model-claude { color: oklch(0.7 0.2 320); }
+.model-claude-opus { color: oklch(0.75 0.22 310); }
+.model-gpt { color: oklch(0.7 0.18 155); }
+.model-gemini { color: oklch(0.7 0.15 200); }
+.model-grok { color: oklch(0.75 0.16 85); }
+.model-nemotron { color: oklch(0.75 0.18 140); }
+.model-default { color: oklch(0.6 0.02 253); }
+
+
+/* ============================================================
+   Prose content (rendered markdown inside bubbles)
+   ============================================================ */
+
+.prose-content h1,
+.prose-content h2,
+.prose-content h3,
+.prose-content h4 {
+  font-weight: 600;
+  margin-top: 0.75em;
+  margin-bottom: 0.25em;
+}
+.prose-content h1 { font-size: 1.25rem; }
+.prose-content h2 { font-size: 1.1rem; }
+.prose-content h3 { font-size: 1rem; }
+
+.prose-content p { margin: 0.4em 0; }
+
+.prose-content ul,
+.prose-content ol {
+  padding-left: 1.5em;
+  margin: 0.4em 0;
+}
+.prose-content ul { list-style-type: disc; }
+.prose-content ol { list-style-type: decimal; }
+
+.prose-content code {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85em;
+  background: oklch(1 0 0 / 0.1);
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+}
+
+.prose-content pre {
+  background: oklch(0 0 0 / 0.3);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0.5em 0;
+}
+
+.prose-content pre code {
+  background: none;
+  padding: 0;
+}
+
+.prose-content blockquote {
+  border-left: 3px solid oklch(0.69 0.163 293 / 0.5);
+  padding-left: 1em;
+  margin: 0.5em 0;
+  color: oklch(0.75 0.02 253);
+}
+
+.prose-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5em 0;
+}
+
+.prose-content th,
+.prose-content td {
+  border: 1px solid oklch(1 0 0 / 0.1);
+  padding: 0.35rem 0.6rem;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.prose-content th {
+  background: oklch(1 0 0 / 0.06);
+  font-weight: 600;
+}
+
+
+/* ============================================================
+   Copy Button
+   ============================================================ */
+
+.debate-copy-btn {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: oklch(0.6 0.02 253);
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.group:hover .debate-copy-btn {
+  opacity: 1;
+}
+
+.debate-copy-btn:hover {
+  background: oklch(1 0 0 / 0.12);
+  color: oklch(0.85 0.02 253);
+}
+
+.debate-copy-btn.copied::after {
+  content: "Copied!";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.65rem;
+  color: oklch(0.68 0.132 202);
+  white-space: nowrap;
+  padding: 2px 6px;
+  background: oklch(0.15 0.01 260);
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+
+/* ============================================================
+   Typing Indicator
+   ============================================================ */
+
+.debate-typing-dots {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.debate-typing-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: oklch(0.68 0.132 202);
+  animation: debate-dot-pulse 1.4s infinite ease-in-out;
+}
+
+.debate-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.debate-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes debate-dot-pulse {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.debate-streaming-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 0.75rem;
+  color: oklch(0.55 0.02 253);
+}
+
+
+/* ============================================================
+   Jump-to-Bottom Button
+   ============================================================ */
+
+.debate-jump-bottom {
+  position: fixed;
+  bottom: 7rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: oklch(0.22 0.032 257);
+  border: 1px solid oklch(1 0 0 / 0.12);
+  color: oklch(0.75 0.02 253);
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.debate-jump-bottom:hover {
+  background: oklch(0.28 0.035 257);
+  border-color: oklch(0.69 0.163 293 / 0.3);
+}
+
+
+/* ============================================================
+   Suggested Prompt Chips
+   ============================================================ */
+
+.debate-chip {
+  background: oklch(0.69 0.163 293 / 0.08);
+  border: 1px solid oklch(0.69 0.163 293 / 0.2);
+  border-radius: 9999px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.8rem;
+  color: oklch(0.75 0.08 293);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.debate-chip:hover {
+  background: oklch(0.69 0.163 293 / 0.15);
+  color: oklch(0.9 0.02 253);
+}
+
+
+/* ============================================================
+   New Debate / Send Buttons (inside input)
+   ============================================================ */
+
+.debate-new-btn {
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.debate-send-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+
+/* ============================================================
+   Form Controls (dark overrides)
+   ============================================================ */
+
+.select,
+.input {
+  background: oklch(0.12 0.01 260) !important;
+  border-color: oklch(0.69 0.163 293 / 0.2) !important;
+  color: #f1f5f9;
+}
+
+.select:focus,
+.input:focus {
+  border-color: oklch(0.69 0.163 293 / 0.5) !important;
+  box-shadow: 0 0 0 2px oklch(0.69 0.163 293 / 0.1);
+  outline: none;
+}
+
+.checkbox-primary:checked {
+  border-color: oklch(0.68 0.132 202);
+  background-color: oklch(0.68 0.132 202);
+}
+
+
+/* ============================================================
+   Table styling
+   ============================================================ */
+
+.transcript-row:hover {
+  background: oklch(1 0 0 / 0.04);
+}
+
+.transcript-detail {
+  background: oklch(0.10 0.012 270);
+}

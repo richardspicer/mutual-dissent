@@ -1,51 +1,59 @@
-"""NiceGUI web application for Mutual Dissent.
+"""Starlette web application for Mutual Dissent.
 
-Defines page routing and server configuration. Started via the
-``mutual-dissent serve`` CLI command.
+Defines the ASGI app factory with Jinja2 templates, static file
+serving, and WebSocket support. Started via ``mutual-dissent serve``.
 """
 
 from __future__ import annotations
 
-from nicegui import ui
+from pathlib import Path
 
-from mutual_dissent.web.layout import create_layout
-from mutual_dissent.web.pages import config as config_page
-from mutual_dissent.web.pages import dashboard, debate
+from starlette.applications import Starlette
+from starlette.routing import Mount, Route, WebSocketRoute
+from starlette.staticfiles import StaticFiles
+from starlette.templating import Jinja2Templates
+
+from mutual_dissent.web.routes import (
+    dashboard_page,
+    debate_page,
+    get_transcript_detail,
+    get_transcripts,
+    save_settings,
+    settings_page,
+    transcript_export,
+)
+from mutual_dissent.web.websocket import ConnectionManager, debate_ws
+
+_WEB_DIR = Path(__file__).resolve().parent
+_TEMPLATES_DIR = _WEB_DIR / "templates"
+_STATIC_DIR = _WEB_DIR / "static"
 
 
-def create_app(*, host: str = "127.0.0.1", port: int = 8080, show: bool = True) -> None:
-    """Configure and run the NiceGUI application.
+def create_app() -> Starlette:
+    """Build and return the Starlette ASGI application.
 
-    Registers page routes, applies the shared layout, and starts the
-    NiceGUI server. This function blocks until the server is stopped.
+    Configures Jinja2 templates, static files, route handlers, and a
+    WebSocket connection manager stored on ``app.state``.
 
-    Args:
-        host: Bind address. Defaults to localhost.
-        port: Port number. Defaults to 8080.
-        show: Open browser automatically. Defaults to True.
+    Returns:
+        Configured Starlette application instance.
     """
+    routes = [
+        Route("/", debate_page),
+        Route("/dashboard", dashboard_page),
+        Route("/settings", settings_page),
+        Route("/settings", save_settings, methods=["POST"]),
+        Route("/api/transcripts", get_transcripts),
+        Route("/api/transcripts/{transcript_id:str}", get_transcript_detail),
+        Route("/api/transcripts/{transcript_id:str}/export", transcript_export),
+        WebSocketRoute("/ws/debate", debate_ws),
+        Mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static"),
+    ]
 
-    @ui.page("/")
-    def index() -> None:
-        create_layout()
-        debate.render()
+    app = Starlette(routes=routes)
 
-    @ui.page("/dashboard")
-    def dashboard_page() -> None:
-        create_layout()
-        dashboard.render()
+    templates = Jinja2Templates(directory=str(_TEMPLATES_DIR))
+    app.state.templates = templates
+    app.state.ws_manager = ConnectionManager()
 
-    @ui.page("/config")
-    def config_page_route() -> None:
-        create_layout()
-        config_page.render()
-
-    ui.run(
-        host=host,
-        port=port,
-        title="Mutual Dissent",
-        dark=True,
-        show=show,
-        reload=False,
-        tailwind=True,
-    )
+    return app

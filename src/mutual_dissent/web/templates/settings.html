@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% set active_page = "settings" %}
+{% block title %}Settings — Mutual Dissent{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-6 py-8">
+  <h1 class="text-2xl font-bold mb-6">Settings</h1>
+
+  <!-- Provider API Keys -->
+  <section class="mb-6">
+    <div class="panel p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold">Provider API Keys</h2>
+        <button id="providers-edit-btn" class="btn btn-xs btn-outline btn-secondary btn-square"
+                onclick="toggleProviderEdit(true)" title="Edit">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Display mode -->
+      <div id="providers-display">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {% for p in providers_status %}
+          <div class="flex items-center justify-between p-2 rounded-lg bg-white/5">
+            <span class="text-sm font-mono">{{ p.label }}</span>
+            <div class="flex items-center gap-2">
+              {% if p.source == "env" %}
+              <span class="badge badge-sm badge-outline text-xs">ENV</span>
+              {% endif %}
+              {% if p.has_key %}
+              <span class="text-success text-xs">Configured</span>
+              {% else %}
+              <span class="text-white/30 text-xs">Not set</span>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Edit mode -->
+      <div id="providers-edit" style="display: none;">
+        <form id="providers-form" onsubmit="return saveProviders(event)">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {% for p in providers_status %}
+            <div class="form-control">
+              <label class="label"><span class="label-text text-xs font-mono">{{ p.label }}</span></label>
+              {% if p.source == "env" %}
+              <input type="text" class="input input-bordered input-sm font-mono opacity-50"
+                     value="Set via environment variable" disabled />
+              {% else %}
+              <input type="password" name="provider_{{ p.name }}"
+                     class="input input-bordered input-sm font-mono"
+                     placeholder="{{ p.label }} API key..."
+                     value="{{ config.providers.get(p.name, '') }}" />
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          <div class="flex items-center gap-2 mt-4">
+            <button type="submit" class="btn btn-sm btn-outline btn-primary">Save</button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="toggleProviderEdit(false)">Cancel</button>
+            <span id="providers-msg" class="text-xs"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Debate Defaults -->
+  <section class="mb-6">
+    <div class="panel p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold">Debate Defaults</h2>
+        <button id="defaults-edit-btn" class="btn btn-xs btn-outline btn-secondary btn-square"
+                onclick="toggleDefaultsEdit(true)" title="Edit">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Display mode -->
+      <div id="defaults-display">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="p-2 rounded-lg bg-white/5">
+            <div class="text-xs text-white/40 font-mono uppercase mb-1">Panel</div>
+            <div class="text-sm font-mono text-white/70">{{ config.default_panel | join(", ") }}</div>
+          </div>
+          <div class="p-2 rounded-lg bg-white/5">
+            <div class="text-xs text-white/40 font-mono uppercase mb-1">Synthesizer</div>
+            <div class="text-sm font-mono text-white/70">{{ config.default_synthesizer }}</div>
+          </div>
+          <div class="p-2 rounded-lg bg-white/5">
+            <div class="text-xs text-white/40 font-mono uppercase mb-1">Rounds</div>
+            <div class="text-sm font-mono text-white/70">{{ config.default_rounds }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit mode -->
+      <div id="defaults-edit" style="display: none;">
+        <form id="defaults-form" onsubmit="return saveDefaults(event)">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="form-control">
+              <label class="label"><span class="label-text text-xs font-mono">Panel (comma-separated)</span></label>
+              <input type="text" id="defaults-panel" class="input input-bordered input-sm font-mono"
+                     value="{{ config.default_panel | join(', ') }}" />
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text text-xs font-mono">Synthesizer</span></label>
+              <select id="defaults-synthesizer" class="select select-bordered select-sm font-mono">
+                {% for alias in config.model_aliases.keys() %}
+                <option value="{{ alias }}" {% if alias == config.default_synthesizer %}selected{% endif %}>{{ alias }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text text-xs font-mono">Rounds</span></label>
+              <input type="number" id="defaults-rounds" class="input input-bordered input-sm font-mono"
+                     min="1" max="{{ max_rounds }}" value="{{ config.default_rounds }}" />
+            </div>
+          </div>
+          <div class="flex items-center gap-2 mt-4">
+            <button type="submit" class="btn btn-sm btn-outline btn-primary">Save</button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="toggleDefaultsEdit(false)">Cancel</button>
+            <span id="defaults-msg" class="text-xs"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Routing -->
+  <section class="mb-6">
+    <div class="panel p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold">Routing</h2>
+        <button id="routing-edit-btn" class="btn btn-xs btn-outline btn-secondary btn-square"
+                onclick="toggleRoutingEdit(true)" title="Edit">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Display mode -->
+      <div id="routing-display">
+        <div class="p-2 rounded-lg bg-white/5">
+          <div class="text-xs text-white/40 font-mono uppercase mb-1">Default Mode</div>
+          <div class="text-sm font-mono text-white/70">{{ config.routing.get("default_mode", "auto") }}</div>
+        </div>
+        {% for alias, mode in config.routing.items() %}
+        {% if alias != "default_mode" %}
+        <div class="p-2 rounded-lg bg-white/5 mt-2">
+          <div class="text-xs text-white/40 font-mono uppercase mb-1">{{ alias }}</div>
+          <div class="text-sm font-mono text-white/70">{{ mode }}</div>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+
+      <!-- Edit mode -->
+      <div id="routing-edit" style="display: none;">
+        <form id="routing-form" onsubmit="return saveRouting(event)">
+          <div class="form-control mb-3">
+            <label class="label"><span class="label-text text-xs font-mono">Default Mode</span></label>
+            <select id="routing-default" class="select select-bordered select-sm font-mono">
+              <option value="auto" {% if config.routing.get("default_mode") == "auto" %}selected{% endif %}>auto</option>
+              <option value="direct" {% if config.routing.get("default_mode") == "direct" %}selected{% endif %}>direct</option>
+              <option value="openrouter" {% if config.routing.get("default_mode") == "openrouter" %}selected{% endif %}>openrouter</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2 mt-4">
+            <button type="submit" class="btn btn-sm btn-outline btn-primary">Save</button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="toggleRoutingEdit(false)">Cancel</button>
+            <span id="routing-msg" class="text-xs"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Model Aliases -->
+  <section class="mb-6">
+    <div class="panel p-6">
+      <h2 class="text-lg font-semibold mb-4">Model Aliases</h2>
+      <div class="overflow-x-auto">
+        <table class="table table-sm w-full">
+          <thead>
+            <tr class="text-white/40 text-xs uppercase font-mono tracking-wider">
+              <th>Alias</th>
+              <th>OpenRouter ID</th>
+              <th>Direct ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for alias, ids in config._model_aliases_v2.items() | sort %}
+            <tr class="hover:bg-white/5">
+              <td class="font-mono text-primary text-sm">{{ alias }}</td>
+              <td class="font-mono text-xs text-white/60">{{ ids.get("openrouter", "—") }}</td>
+              <td class="font-mono text-xs text-white/60">{{ ids.get("direct", "—") }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  // Toggle helpers
+  function toggle(displayId, editId, show) {
+    document.getElementById(displayId).style.display = show ? "none" : "block";
+    document.getElementById(editId).style.display = show ? "block" : "none";
+  }
+
+  window.toggleProviderEdit = function (show) { toggle("providers-display", "providers-edit", show); };
+  window.toggleDefaultsEdit = function (show) { toggle("defaults-display", "defaults-edit", show); };
+  window.toggleRoutingEdit = function (show) { toggle("routing-display", "routing-edit", show); };
+
+  function showMsg(id, text, isError) {
+    var el = document.getElementById(id);
+    el.textContent = text;
+    el.className = "text-xs " + (isError ? "text-error" : "text-success");
+    setTimeout(function () { el.textContent = ""; }, 3000);
+  }
+
+  window.saveProviders = function (e) {
+    e.preventDefault();
+    var form = document.getElementById("providers-form");
+    var providers = {};
+    var inputs = form.querySelectorAll("input[type='password']");
+    inputs.forEach(function (inp) {
+      var name = inp.name.replace("provider_", "");
+      if (inp.value.trim()) providers[name] = inp.value.trim();
+    });
+    fetch("/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ providers: providers })
+    }).then(function (r) {
+      if (r.ok) {
+        showMsg("providers-msg", "Saved!", false);
+        setTimeout(function () { location.reload(); }, 1000);
+      } else {
+        showMsg("providers-msg", "Save failed", true);
+      }
+    }).catch(function () { showMsg("providers-msg", "Network error", true); });
+    return false;
+  };
+
+  window.saveDefaults = function (e) {
+    e.preventDefault();
+    var panel = document.getElementById("defaults-panel").value.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    var synthesizer = document.getElementById("defaults-synthesizer").value;
+    var rounds = parseInt(document.getElementById("defaults-rounds").value, 10) || 1;
+    fetch("/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ defaults: { panel: panel, synthesizer: synthesizer, rounds: rounds } })
+    }).then(function (r) {
+      if (r.ok) {
+        showMsg("defaults-msg", "Saved!", false);
+        setTimeout(function () { location.reload(); }, 1000);
+      } else {
+        showMsg("defaults-msg", "Save failed", true);
+      }
+    }).catch(function () { showMsg("defaults-msg", "Network error", true); });
+    return false;
+  };
+
+  window.saveRouting = function (e) {
+    e.preventDefault();
+    var defaultMode = document.getElementById("routing-default").value;
+    fetch("/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ routing: { default_mode: defaultMode } })
+    }).then(function (r) {
+      if (r.ok) {
+        showMsg("routing-msg", "Saved!", false);
+        setTimeout(function () { location.reload(); }, 1000);
+      } else {
+        showMsg("routing-msg", "Save failed", true);
+      }
+    }).catch(function () { showMsg("routing-msg", "Network error", true); });
+    return false;
+  };
+})();
+</script>
+{% endblock %}

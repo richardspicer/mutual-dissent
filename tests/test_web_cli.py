@@ -1,12 +1,12 @@
 """Tests for the ``serve`` CLI command registration.
 
 Covers: Click command registration, help text, and option defaults.
-Does NOT start the NiceGUI server (create_app is mocked).
+Does NOT start the uvicorn server (uvicorn.run is mocked).
 """
 
 from __future__ import annotations
 
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
 
@@ -53,46 +53,47 @@ class TestServeCommandRegistration:
 
 
 class TestServeCommandExecution:
-    """serve command calls create_app with correct arguments."""
+    """serve command calls uvicorn.run with correct arguments."""
 
     def test_serve_default_args(self) -> None:
-        """serve with no options passes defaults to create_app."""
+        """serve with no options starts uvicorn with defaults."""
         runner = CliRunner()
-        with patch("mutual_dissent.web.app.create_app") as mock_create:
+        mock_run = MagicMock()
+        with (
+            patch("uvicorn.run", mock_run),
+            patch("webbrowser.open"),
+            patch("threading.Timer", return_value=MagicMock()),
+        ):
             result = runner.invoke(main, ["serve"])
         assert result.exit_code == 0
-        mock_create.assert_called_once_with(host="127.0.0.1", port=8080, show=True)
-
-    def test_serve_custom_port(self) -> None:
-        """serve --port passes custom port to create_app."""
-        runner = CliRunner()
-        with patch("mutual_dissent.web.app.create_app") as mock_create:
-            result = runner.invoke(main, ["serve", "--port", "9000"])
-        assert result.exit_code == 0
-        mock_create.assert_called_once_with(host="127.0.0.1", port=9000, show=True)
-
-    def test_serve_custom_host(self) -> None:
-        """serve --host passes custom host to create_app."""
-        runner = CliRunner()
-        with patch("mutual_dissent.web.app.create_app") as mock_create:
-            result = runner.invoke(main, ["serve", "--host", "0.0.0.0"])
-        assert result.exit_code == 0
-        mock_create.assert_called_once_with(host="0.0.0.0", port=8080, show=True)
+        mock_run.assert_called_once()
+        _, kwargs = mock_run.call_args
+        assert kwargs["host"] == "127.0.0.1"
+        assert kwargs["port"] == 8080
 
     def test_serve_no_open(self) -> None:
-        """serve --no-open passes show=False to create_app."""
+        """serve --no-open does not open browser."""
         runner = CliRunner()
-        with patch("mutual_dissent.web.app.create_app") as mock_create:
+        mock_run = MagicMock()
+        mock_timer_cls = MagicMock()
+        with (
+            patch("uvicorn.run", mock_run),
+            patch("threading.Timer", mock_timer_cls),
+        ):
             result = runner.invoke(main, ["serve", "--no-open"])
         assert result.exit_code == 0
-        mock_create.assert_called_once_with(host="127.0.0.1", port=8080, show=False)
+        mock_timer_cls.assert_not_called()
 
-    def test_serve_all_options(self) -> None:
-        """serve with all options passes everything to create_app."""
+    def test_serve_custom_port(self) -> None:
+        """serve --port passes custom port."""
         runner = CliRunner()
-        with patch("mutual_dissent.web.app.create_app") as mock_create:
-            result = runner.invoke(
-                main, ["serve", "--port", "3000", "--host", "0.0.0.0", "--no-open"]
-            )
+        mock_run = MagicMock()
+        with (
+            patch("uvicorn.run", mock_run),
+            patch("webbrowser.open"),
+            patch("threading.Timer", return_value=MagicMock()),
+        ):
+            result = runner.invoke(main, ["serve", "--port", "9000"])
         assert result.exit_code == 0
-        mock_create.assert_called_once_with(host="0.0.0.0", port=3000, show=False)
+        _, kwargs = mock_run.call_args
+        assert kwargs["port"] == 9000
