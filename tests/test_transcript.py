@@ -78,6 +78,7 @@ def _make_response_dict(
         "role": role,
         "routing": routing,
         "analysis": analysis if analysis is not None else {},
+        "agent_id": "",
     }
     return d
 
@@ -193,6 +194,7 @@ class TestParseTranscriptFile:
         assert resp.role == "initial"
         assert resp.routing is None
         assert resp.analysis == {}
+        assert resp.agent_id == ""
 
     def test_synthesis_deserialized(self, tmp_path: Path) -> None:
         """Synthesis is a ModelResponse with correct fields."""
@@ -240,7 +242,7 @@ class TestParseTranscriptFile:
         assert transcript.created_at.day == 28
 
     def test_old_transcript_missing_role_routing_analysis(self, tmp_path: Path) -> None:
-        """Transcripts missing role/routing/analysis still parse with defaults."""
+        """Transcripts missing role/routing/analysis/agent_id still parse with defaults."""
         data = _make_full_transcript_dict()
         # Remove new fields from all responses to simulate old format
         for rnd in data["rounds"]:
@@ -248,10 +250,12 @@ class TestParseTranscriptFile:
                 resp.pop("role", None)
                 resp.pop("routing", None)
                 resp.pop("analysis", None)
+                resp.pop("agent_id", None)
         if data["synthesis"]:
             data["synthesis"].pop("role", None)
             data["synthesis"].pop("routing", None)
             data["synthesis"].pop("analysis", None)
+            data["synthesis"].pop("agent_id", None)
 
         filepath = _write_transcript(tmp_path, data)
         transcript = _parse_transcript_file(filepath)
@@ -260,11 +264,13 @@ class TestParseTranscriptFile:
         assert resp.role == ""
         assert resp.routing is None
         assert resp.analysis == {}
+        assert resp.agent_id == ""
 
         assert transcript.synthesis is not None
         assert transcript.synthesis.role == ""
         assert transcript.synthesis.routing is None
         assert transcript.synthesis.analysis == {}
+        assert transcript.synthesis.agent_id == ""
 
     def test_null_synthesis(self, tmp_path: Path) -> None:
         """Transcript with null synthesis has synthesis=None."""

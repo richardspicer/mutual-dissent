@@ -218,6 +218,7 @@ class ProviderRouter:
         prompt: str | None = None,
         model_alias: str = "",
         round_number: int = 0,
+        agent_id: str = "",
     ) -> ModelResponse:
         """Route and execute a single completion request.
 
@@ -234,6 +235,8 @@ class ProviderRouter:
                 ``alias_or_id`` if not provided.
             round_number: Debate round (0=initial, 1+=reflection,
                 -1=synthesis).
+            agent_id: Unique agent identity within the debate panel.
+                Passed through to the response for tracking.
 
         Returns:
             ``ModelResponse`` with the model's reply, or with ``error``
@@ -258,6 +261,7 @@ class ProviderRouter:
                     ),
                 )
                 response.routing = routing_dict
+                response.agent_id = agent_id
                 return response
             model_id = self._config.resolve_model(alias_or_id)
             response = await self._openrouter.complete(
@@ -268,6 +272,7 @@ class ProviderRouter:
                 round_number=round_number,
             )
             response.routing = routing_dict
+            response.agent_id = agent_id
             return response
 
         # Direct provider path.
@@ -282,6 +287,7 @@ class ProviderRouter:
                 error=f"No direct provider available for vendor '{vendor_key}'",
             )
             response.routing = routing_dict
+            response.agent_id = agent_id
             return response
         model_id = self._config.resolve_model(alias_or_id, direct=True)
         response = await provider.complete(
@@ -292,6 +298,7 @@ class ProviderRouter:
             round_number=round_number,
         )
         response.routing = routing_dict
+        response.agent_id = agent_id
         return response
 
     async def complete_parallel(

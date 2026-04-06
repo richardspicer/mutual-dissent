@@ -41,6 +41,38 @@ logger = logging.getLogger(__name__)
 OnRoundComplete = Callable[[DebateRound], Awaitable[None]] | None
 
 
+def assign_agent_ids(panel_aliases: list[str]) -> list[str]:
+    """Assign unique agent identities for a panel of model aliases.
+
+    When a panel contains duplicate aliases, each duplicate gets a numeric
+    suffix (e.g. ``"claude-1"``, ``"claude-2"``). Unique aliases are kept
+    unchanged.
+
+    Args:
+        panel_aliases: List of model aliases, possibly with duplicates.
+
+    Returns:
+        List of unique agent IDs, same length and order as input.
+    """
+    from collections import Counter
+
+    counts = Counter(panel_aliases)
+    # Only aliases that appear more than once need suffixes.
+    duplicates = {alias for alias, count in counts.items() if count > 1}
+
+    agent_ids: list[str] = []
+    seen: dict[str, int] = {}
+    for alias in panel_aliases:
+        if alias in duplicates:
+            idx = seen.get(alias, 0) + 1
+            seen[alias] = idx
+            agent_ids.append(f"{alias}-{idx}")
+        else:
+            agent_ids.append(alias)
+
+    return agent_ids
+
+
 async def run_debate(
     query: str,
     config: Config,
@@ -99,6 +131,9 @@ async def run_debate(
     synth_alias = synthesizer or config.default_synthesizer
     num_rounds = min(rounds or config.default_rounds, 3)
 
+    # Assign unique agent identities for panels with duplicate aliases.
+    agent_ids = assign_agent_ids(panel_aliases)
+
     # Initialize transcript — stores aliases, not resolved model IDs.
     # Each ModelResponse carries the resolved model_id set by the router.
     transcript = DebateTranscript(
@@ -117,7 +152,11 @@ async def run_debate(
 
         # --- Initial round ---
         initial_responses = await _run_initial_round(
-            router, query, panel_aliases, panelist_context=panelist_context
+            router,
+            query,
+            panel_aliases,
+            agent_ids=agent_ids,
+            panelist_context=panelist_context,
         )
         for r in initial_responses:
             r.role = "initial"
@@ -136,6 +175,7 @@ async def run_debate(
                 panel_aliases,
                 prev_responses,
                 round_num,
+                agent_ids=agent_ids,
                 panelist_context=panelist_context,
             )
             for r in reflection_responses:
@@ -254,6 +294,7 @@ async def run_replay(
         # --- Additional reflection rounds ---
         if additional_rounds > 0:
             prev_responses = source.rounds[-1].responses
+            replay_agent_ids = assign_agent_ids(source.panel)
 
             round_offset = len(source.rounds)
             for i in range(additional_rounds):
@@ -264,6 +305,7 @@ async def run_replay(
                     source.panel,
                     prev_responses,
                     round_num,
+                    agent_ids=replay_agent_ids,
                     panelist_context=panelist_context,
                 )
                 for r in reflection_responses:
@@ -314,6 +356,7 @@ async def _run_initial_round(
     query: str,
     panel_aliases: list[str],
     *,
+    agent_ids: list[str] | None = None,
     panelist_context: dict[str, str] | None = None,
 ) -> list[ModelResponse]:
     """Fan out the initial query to all panel models in parallel.
@@ -322,14 +365,17 @@ async def _run_initial_round(
         router: Active provider router.
         query: User's original query.
         panel_aliases: List of model aliases.
+        agent_ids: Unique agent identities, parallel to panel_aliases.
+            When None, model_alias is used as agent_id.
         panelist_context: Optional per-panelist context to prepend to prompts.
 
     Returns:
         List of ModelResponse objects from all panel members.
     """
+    ids = agent_ids or panel_aliases
     base_prompt = format_initial(query)
     requests = []
-    for alias in panel_aliases:
+    for alias, aid in zip(panel_aliases, ids, strict=True):
         prompt = _inject_context(base_prompt, alias, panelist_context)
         requests.append(
             {
@@ -337,6 +383,7 @@ async def _run_initial_round(
                 "prompt": prompt,
                 "model_alias": alias,
                 "round_number": 0,
+                "agent_id": aid,
             }
         )
     return await router.complete_parallel(requests)
@@ -349,11 +396,12 @@ async def _run_reflection_round(
     prev_responses: list[ModelResponse],
     round_number: int,
     *,
+    agent_ids: list[str] | None = None,
     panelist_context: dict[str, str] | None = None,
 ) -> list[ModelResponse]:
     """Run one reflection round where each model sees others' responses.
 
-    Each model receives its own previous response plus all other models'
+    Each agent receives its own previous response plus all other agents'
     previous responses, and is asked to reflect and refine.
 
     Args:
@@ -362,23 +410,27 @@ async def _run_reflection_round(
         panel_aliases: List of model aliases.
         prev_responses: Responses from the previous round.
         round_number: Current reflection round number (1-indexed).
+        agent_ids: Unique agent identities, parallel to panel_aliases.
+            When None, model_alias is used as agent_id.
         panelist_context: Optional per-panelist context to prepend to prompts.
 
     Returns:
         List of ModelResponse objects from all panel members.
     """
-    # Index previous responses by model_alias for lookup.
-    response_map: dict[str, ModelResponse] = {r.model_alias: r for r in prev_responses}
+    ids = agent_ids or panel_aliases
+
+    # Index previous responses by agent identity (display_label) for lookup.
+    response_map: dict[str, ModelResponse] = {r.display_label: r for r in prev_responses}
 
     requests = []
-    for alias in panel_aliases:
-        own = response_map.get(alias)
+    for alias, aid in zip(panel_aliases, ids, strict=True):
+        own = response_map.get(aid)
         own_text = own.content if own and not own.error else "[No response available]"
 
         others = [
-            (r.model_alias, r.content)
+            (r.display_label, r.content)
             for r in prev_responses
-            if r.model_alias != alias and not r.error
+            if r.display_label != aid and not r.error
         ]
 
         base_prompt = format_reflection(query, own_text, others)
@@ -389,6 +441,7 @@ async def _run_reflection_round(
                 "prompt": prompt,
                 "model_alias": alias,
                 "round_number": round_number,
+                "agent_id": aid,
             }
         )
 
@@ -504,14 +557,14 @@ async def _run_synthesis(
     Returns:
         ModelResponse from the synthesizer.
     """
-    # Format all rounds for the synthesizer.
+    # Format all rounds for the synthesizer, using agent identity for labels.
     round_data = []
     for debate_round in transcript.rounds:
         round_data.append(
             RoundSummary(
                 round_type=debate_round.round_type,
                 responses=[
-                    (r.model_alias, r.content) for r in debate_round.responses if not r.error
+                    (r.display_label, r.content) for r in debate_round.responses if not r.error
                 ],
             )
         )
@@ -538,14 +591,16 @@ async def _compute_stats(
         pricing_cache: Optional pricing cache for cost computation.
 
     Returns:
-        Dictionary with total_tokens, per_model breakdown (including
-        input/output token split and cost), total_cost_usd, and
+        Dictionary with total_tokens, per_model breakdown (for cost
+        attribution by model alias), per_agent breakdown (for per-agent
+        detail when duplicate aliases exist), total_cost_usd, and
         convergence placeholder.
     """
     total_tokens = 0
     total_cost: float = 0.0
     has_any_cost = False
     per_model: dict[str, dict[str, Any]] = {}
+    per_agent: dict[str, dict[str, Any]] = {}
 
     all_responses: list[ModelResponse] = []
     for rnd in transcript.rounds:
@@ -557,6 +612,7 @@ async def _compute_stats(
         tokens = r.token_count or 0
         total_tokens += tokens
 
+        # Per-model rollup (for cost attribution).
         if r.model_alias not in per_model:
             per_model[r.model_alias] = {
                 "tokens": 0,
@@ -565,24 +621,43 @@ async def _compute_stats(
                 "calls": 0,
                 "cost_usd": 0.0,
             }
-        entry = per_model[r.model_alias]
-        entry["tokens"] += tokens
-        entry["input_tokens"] += r.input_tokens or 0
-        entry["output_tokens"] += r.output_tokens or 0
-        entry["calls"] += 1
+        model_entry = per_model[r.model_alias]
+        model_entry["tokens"] += tokens
+        model_entry["input_tokens"] += r.input_tokens or 0
+        model_entry["output_tokens"] += r.output_tokens or 0
+        model_entry["calls"] += 1
+
+        # Per-agent detail (uses agent identity).
+        agent_key = r.display_label
+        if agent_key not in per_agent:
+            per_agent[agent_key] = {
+                "tokens": 0,
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "calls": 0,
+                "cost_usd": 0.0,
+                "model_alias": r.model_alias,
+            }
+        agent_entry = per_agent[agent_key]
+        agent_entry["tokens"] += tokens
+        agent_entry["input_tokens"] += r.input_tokens or 0
+        agent_entry["output_tokens"] += r.output_tokens or 0
+        agent_entry["calls"] += 1
 
         # Compute per-response cost.
         if pricing_cache is not None:
             pricing = await pricing_cache.get_pricing(r.model_id)
             cost = compute_response_cost(r, pricing)
             if cost is not None:
-                entry["cost_usd"] += cost
+                model_entry["cost_usd"] += cost
+                agent_entry["cost_usd"] += cost
                 total_cost += cost
                 has_any_cost = True
 
     return {
         "total_tokens": total_tokens,
         "per_model": per_model,
+        "per_agent": per_agent,
         "total_cost_usd": total_cost if has_any_cost else None,
         "convergence": {},
     }

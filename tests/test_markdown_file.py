@@ -175,6 +175,7 @@ def _make_transcript_json(
                         "role": "initial",
                         "routing": None,
                         "analysis": {},
+                        "agent_id": "",
                     },
                     {
                         "model_id": "vendor/gpt-model",
@@ -188,6 +189,7 @@ def _make_transcript_json(
                         "role": "initial",
                         "routing": None,
                         "analysis": {},
+                        "agent_id": "",
                     },
                 ],
             }
@@ -204,6 +206,7 @@ def _make_transcript_json(
             "role": "synthesis",
             "routing": None,
             "analysis": {},
+            "agent_id": "",
         },
         "created_at": "2026-02-28T14:30:00+00:00",
         "metadata": {},

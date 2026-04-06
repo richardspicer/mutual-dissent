@@ -84,6 +84,7 @@ def _make_mock_router() -> MagicMock:
                 round_number=int(req.get("round_number", 0)),
                 content=str(req.get("prompt", "")),
                 token_count=50,
+                agent_id=str(req.get("agent_id", "")),
             )
             for req in requests
         ]
