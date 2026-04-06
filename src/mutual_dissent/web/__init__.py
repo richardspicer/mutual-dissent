@@ -1,1 +1,1 @@
-"""NiceGUI web interface for Mutual Dissent."""
+"""Starlette web interface for Mutual Dissent."""

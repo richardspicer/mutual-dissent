@@ -511,17 +511,28 @@ def replay(
 def serve(port: int, host: str, no_open: bool) -> None:
     """Start the web UI server.
 
-    Imports and starts the NiceGUI application. This call blocks until
-    the server is stopped.
+    Launches the Starlette application via uvicorn. This call blocks
+    until the server is stopped.
 
     Args:
         port: Port number to bind to.
         host: Host address to bind to.
         no_open: If True, suppresses automatic browser launch.
     """
+    import threading
+    import webbrowser
+
+    import uvicorn
+
     from mutual_dissent.web.app import create_app
 
-    create_app(host=host, port=port, show=not no_open)
+    app = create_app()
+
+    if not no_open:
+        url = f"http://{host}:{port}"
+        threading.Timer(1.0, webbrowser.open, args=(url,)).start()
+
+    uvicorn.run(app, host=host, port=port, log_level="info")
 
 
 @main.group()

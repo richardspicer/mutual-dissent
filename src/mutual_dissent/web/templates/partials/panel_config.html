@@ -1,0 +1,37 @@
+<!-- Panel configuration: model checkboxes, synthesizer, rounds -->
+<div class="panel p-3">
+  <div class="flex flex-wrap items-center gap-4">
+    <!-- Panel models -->
+    <div class="flex items-center gap-2">
+      <span class="text-xs text-white/40 font-mono uppercase tracking-wider">Panel</span>
+      <div id="panel-checks" class="flex flex-wrap gap-1">
+        {% for model in available_models %}
+        <label class="label cursor-pointer gap-1 px-1.5 py-0.5 rounded-md hover:bg-white/5 transition-colors">
+          <input type="checkbox" value="{{ model }}"
+                 class="checkbox checkbox-xs checkbox-primary"
+                 {% if model in default_panel %}checked{% endif %} />
+          <span class="text-xs font-mono text-white/70">{{ model }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Synthesizer -->
+    <div class="flex items-center gap-2">
+      <span class="text-xs text-white/40 font-mono uppercase tracking-wider">Synth</span>
+      <select id="synth-select" class="select select-bordered select-xs font-mono">
+        {% for model in available_models %}
+        <option value="{{ model }}" {% if model == default_synthesizer %}selected{% endif %}>{{ model }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Rounds -->
+    <div class="flex items-center gap-2">
+      <span class="text-xs text-white/40 font-mono uppercase tracking-wider">Rounds</span>
+      <input type="range" id="rounds-input" min="1" max="{{ max_rounds }}" value="{{ default_rounds }}"
+             class="range range-xs range-primary w-20" oninput="document.getElementById('rounds-label').textContent=this.value" />
+      <span id="rounds-label" class="text-xs font-mono text-white/70">{{ default_rounds }}</span>
+    </div>
+  </div>
+</div>

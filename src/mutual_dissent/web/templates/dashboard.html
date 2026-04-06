@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% set active_page = "dashboard" %}
+{% block title %}Dashboard — Mutual Dissent{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-6 py-8">
+  <h1 class="text-2xl font-bold mb-6">Transcript Browser</h1>
+
+  {% if transcripts %}
+  <!-- Transcript table -->
+  <div class="panel">
+    <div class="overflow-x-auto">
+      <table class="table table-sm w-full">
+        <thead>
+          <tr class="text-white/40 text-xs uppercase font-mono tracking-wider">
+            <th>ID</th>
+            <th>Date</th>
+            <th>Query</th>
+            <th>Panel</th>
+            <th>Rounds</th>
+            <th class="text-right">Tokens</th>
+            <th class="text-right">Cost</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="transcript-table-body">
+          {% for t in transcripts %}
+          <tr class="transcript-row hover:bg-white/5 cursor-pointer transition-colors"
+              data-id="{{ t.id }}" onclick="toggleTranscript(this, '{{ t.id }}')">
+            <td class="font-mono text-xs text-primary">{{ t.short_id }}</td>
+            <td class="text-xs text-white/60">{{ t.date }}</td>
+            <td class="text-sm text-white/80 max-w-xs truncate">{{ t.query }}</td>
+            <td class="text-xs font-mono text-white/50">{{ t.panel }}</td>
+            <td class="text-center text-xs">{{ t.rounds }}</td>
+            <td class="text-right text-xs font-mono text-white/50">{{ "{:,}".format(t.tokens) if t.tokens else "—" }}</td>
+            <td class="text-right text-xs font-mono text-white/50">{{ "${:.4f}".format(t.cost) if t.cost else "—" }}</td>
+            <td class="text-right">
+              <div class="flex gap-1 justify-end">
+                <a href="/api/transcripts/{{ t.id }}/export?format=json"
+                   class="btn btn-xs btn-ghost btn-square" title="Export JSON" onclick="event.stopPropagation()">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                </a>
+                <a href="/api/transcripts/{{ t.id }}/export?format=markdown"
+                   class="btn btn-xs btn-ghost btn-square" title="Export Markdown" onclick="event.stopPropagation()">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </a>
+              </div>
+            </td>
+          </tr>
+          <tr class="transcript-detail hidden" id="detail-{{ t.id }}">
+            <td colspan="8" class="p-0">
+              <div class="p-4 bg-base-300/50 border-t border-white/5">
+                <div class="text-sm text-white/40 text-center py-4" id="detail-loading-{{ t.id }}">Loading...</div>
+                <div class="prose-content" id="detail-content-{{ t.id }}"></div>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="panel p-8 text-center">
+    <p class="text-white/40">No transcripts yet. Run a debate to see results here.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var openDetail = null;
+
+  window.toggleTranscript = function (row, id) {
+    var detailRow = document.getElementById("detail-" + id);
+    if (!detailRow) return;
+
+    // Close previously open detail
+    if (openDetail && openDetail !== id) {
+      var prev = document.getElementById("detail-" + openDetail);
+      if (prev) prev.classList.add("hidden");
+    }
+
+    if (detailRow.classList.contains("hidden")) {
+      detailRow.classList.remove("hidden");
+      openDetail = id;
+      loadTranscriptDetail(id);
+    } else {
+      detailRow.classList.add("hidden");
+      openDetail = null;
+    }
+  };
+
+  function loadTranscriptDetail(id) {
+    var contentEl = document.getElementById("detail-content-" + id);
+    var loadingEl = document.getElementById("detail-loading-" + id);
+
+    // Skip if already loaded
+    if (contentEl.innerHTML.trim()) {
+      loadingEl.style.display = "none";
+      return;
+    }
+
+    fetch("/api/transcripts/" + encodeURIComponent(id))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        loadingEl.style.display = "none";
+        contentEl.innerHTML = renderTranscriptDetail(data);
+      })
+      .catch(function (err) {
+        loadingEl.textContent = "Failed to load transcript.";
+        console.error(err);
+      });
+  }
+
+  function renderTranscriptDetail(t) {
+    var html = '<div class="space-y-4">';
+
+    // Query
+    html += '<div class="panel p-3"><div class="text-xs text-white/40 font-mono uppercase mb-1">Query</div>';
+    html += '<div class="text-sm text-white/80">' + esc(t.query) + '</div></div>';
+
+    // Rounds
+    (t.rounds || []).forEach(function (round) {
+      var label = round.round_type === "initial" ? "Initial Round" : "Reflection " + round.round_number;
+      html += '<div class="panel p-3"><div class="text-xs text-white/40 font-mono uppercase mb-2">' + esc(label) + '</div>';
+      (round.responses || []).forEach(function (resp) {
+        var agentLabel = resp.agent_id || resp.model_alias;
+        html += '<div class="mb-3 last:mb-0">';
+        html += '<div class="text-xs font-mono text-primary mb-1">' + esc(agentLabel) + '</div>';
+        if (resp.error) {
+          html += '<div class="text-sm text-error">' + esc(resp.error) + '</div>';
+        } else {
+          html += '<div class="text-sm text-white/70 prose-content">' + renderMd(resp.content) + '</div>';
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+
+    // Synthesis
+    if (t.synthesis) {
+      html += '<div class="panel synthesis-panel p-3"><div class="text-xs text-secondary font-mono uppercase mb-1">Synthesis by ' + esc(t.synthesis.agent_id || t.synthesis.model_alias) + '</div>';
+      if (t.synthesis.error) {
+        html += '<div class="text-sm text-error">' + esc(t.synthesis.error) + '</div>';
+      } else {
+        html += '<div class="text-sm text-white/70 prose-content">' + renderMd(t.synthesis.content) + '</div>';
+      }
+      html += '</div>';
+    }
+
+    // Metadata
+    var stats = (t.metadata || {}).stats || {};
+    html += '<div class="flex gap-4 text-xs text-white/30 font-mono">';
+    html += '<span>ID: ' + esc(t.transcript_id) + '</span>';
+    if (stats.total_tokens) html += '<span>Tokens: ' + stats.total_tokens.toLocaleString() + '</span>';
+    if (stats.total_cost_usd) html += '<span>Cost: $' + stats.total_cost_usd.toFixed(4) + '</span>';
+    html += '</div>';
+
+    html += '</div>';
+    return html;
+  }
+
+  function renderMd(text) {
+    if (!text) return "";
+    try { return DOMPurify.sanitize(marked.parse(text)); }
+    catch (e) { return esc(text); }
+  }
+
+  function esc(text) {
+    var d = document.createElement("div");
+    d.textContent = text || "";
+    return d.innerHTML;
+  }
+})();
+</script>
+{% endblock %}

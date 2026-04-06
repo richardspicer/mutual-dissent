@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+{% set active_page = "debate" %}
+{% block title %}Debate — Mutual Dissent{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-6 py-6 flex flex-col" style="height: calc(100vh - 68px);">
+
+  <!-- Messages container -->
+  <div id="debate-messages" class="h-full overflow-y-auto space-y-4 pr-1">
+    <div id="debate-welcome" class="flex items-center justify-center h-full">
+      <div class="text-center space-y-4">
+        <h2 class="text-2xl font-semibold text-white/80">Multi-model debate engine</h2>
+        <p class="text-sm text-white/40">Ask a question to start a debate across your panel of AI models.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jump-to-bottom button -->
+  <button id="debate-jump-bottom" class="debate-jump-bottom" aria-label="Jump to bottom" style="display: none;" onclick="scrollToBottom()">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+    </svg>
+  </button>
+
+  <!-- Streaming status bar -->
+  <div id="debate-streaming-bar" class="debate-streaming-bar" style="display: none;">
+    <span class="debate-typing-dots"><span></span><span></span><span></span></span>
+    <span id="debate-status-text">Thinking...</span>
+  </div>
+
+  <!-- Suggested prompts -->
+  <div id="debate-prompts" class="flex flex-wrap gap-2 mb-3" style="padding-left: 44px;">
+    <button type="button" class="debate-chip" onclick="sendSuggestedPrompt(this.textContent.trim())">What is MCP security?</button>
+    <button type="button" class="debate-chip" onclick="sendSuggestedPrompt(this.textContent.trim())">Compare REST vs GraphQL</button>
+    <button type="button" class="debate-chip" onclick="sendSuggestedPrompt(this.textContent.trim())">Should we use microservices?</button>
+    <button type="button" class="debate-chip" onclick="sendSuggestedPrompt(this.textContent.trim())">Explain zero-knowledge proofs</button>
+  </div>
+
+  <!-- Panel config + input -->
+  <div class="space-y-2">
+    {% include "partials/panel_config.html" %}
+
+    <form id="debate-input-form" class="relative" onsubmit="return handleDebateSubmit(event)">
+      <button type="button" id="debate-new-btn"
+              class="btn btn-sm btn-outline btn-square debate-new-btn"
+              title="New debate" onclick="resetDebate()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+      </button>
+      <input type="text" id="debate-input"
+             class="input input-bordered input-sm w-full"
+             placeholder="Ask a question to debate..."
+             autocomplete="off"
+             style="padding-left: 44px; padding-right: 68px;" />
+      <button type="submit" id="debate-send-btn"
+              class="btn btn-sm btn-outline btn-primary debate-send-btn">Send</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var messagesEl = document.getElementById("debate-messages");
+  var inputEl = document.getElementById("debate-input");
+  var sendBtn = document.getElementById("debate-send-btn");
+  var promptsEl = document.getElementById("debate-prompts");
+  var streamingBar = document.getElementById("debate-streaming-bar");
+  var statusText = document.getElementById("debate-status-text");
+  var jumpBtn = document.getElementById("debate-jump-bottom");
+
+  var wsUrl = (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws/debate";
+  var socket = null;
+  var isDebating = false;
+
+  // Model color map
+  var MODEL_COLORS = {
+    "claude": "model-claude", "claude-opus": "model-claude-opus",
+    "gpt": "model-gpt", "gemini": "model-gemini",
+    "grok": "model-grok", "nemotron": "model-nemotron"
+  };
+
+  function getModelClass(label) {
+    // Strip numeric suffix (e.g. "claude-2" -> "claude")
+    var base = label;
+    var parts = label.split("-");
+    if (parts.length > 1 && /^\d+$/.test(parts[parts.length - 1])) {
+      base = parts.slice(0, -1).join("-");
+    }
+    return MODEL_COLORS[base] || "model-default";
+  }
+
+  // --- WebSocket ---
+  function connectWs() {
+    socket = new WebSocket(wsUrl);
+    socket.onopen = function () { console.log("WS connected"); };
+    socket.onclose = function () {
+      console.log("WS closed, reconnecting...");
+      setTimeout(connectWs, 2000);
+    };
+    socket.onerror = function (e) { console.error("WS error", e); };
+    socket.onmessage = function (e) {
+      try { handleWsMessage(JSON.parse(e.data)); }
+      catch (err) { console.error("WS parse error", err); }
+    };
+  }
+
+  function handleWsMessage(data) {
+    switch (data.type) {
+      case "debate_status":
+        statusText.textContent = data.message || "Working...";
+        streamingBar.style.display = "flex";
+        break;
+
+      case "debate_response":
+        addModelBubble(data.agent || data.model_alias, data.content, data.round, data.round_type, data.error);
+        break;
+
+      case "debate_synthesis":
+        addSynthesisBubble(data.synthesizer, data.content, data.error);
+        break;
+
+      case "debate_done":
+        streamingBar.style.display = "none";
+        isDebating = false;
+        inputEl.disabled = false;
+        sendBtn.disabled = false;
+        addSystemMessage("Debate complete. Transcript: " + data.transcript_id);
+        break;
+
+      case "debate_error":
+        streamingBar.style.display = "none";
+        isDebating = false;
+        inputEl.disabled = false;
+        sendBtn.disabled = false;
+        addErrorBubble(data.message || "Unknown error");
+        break;
+    }
+  }
+
+  // --- Message rendering ---
+  function hideWelcome() {
+    var w = document.getElementById("debate-welcome");
+    if (w) w.style.display = "none";
+  }
+
+  function addUserBubble(text) {
+    hideWelcome();
+    var wrapper = document.createElement("div");
+    wrapper.className = "chat chat-end";
+    wrapper.innerHTML =
+      '<div class="chat-header text-xs text-white/40 mb-1">You</div>' +
+      '<div class="chat-bubble chat-bubble-primary relative group">' +
+        '<div class="prose-content">' + esc(text) + '</div>' +
+        copyBtnHtml("right") +
+      '</div>';
+    wrapper.querySelector(".debate-copy-btn").setAttribute("data-raw", text);
+    messagesEl.appendChild(wrapper);
+    scrollToBottom();
+  }
+
+  function addModelBubble(agent, content, round, roundType, error) {
+    hideWelcome();
+    var colorClass = getModelClass(agent);
+    var label = agent + (roundType === "reflection" ? " (R" + round + ")" : "");
+    var wrapper = document.createElement("div");
+    wrapper.className = "chat chat-start";
+
+    var rendered = error
+      ? '<div class="text-error">' + esc(error) + '</div>'
+      : renderMarkdown(content);
+
+    wrapper.innerHTML =
+      '<div class="chat-header text-xs mb-1"><span class="font-mono ' + colorClass + '">' + esc(label) + '</span></div>' +
+      '<div class="chat-bubble debate-bubble relative group ' + colorClass + '-border">' +
+        '<div class="prose-content">' + rendered + '</div>' +
+        copyBtnHtml("left") +
+      '</div>';
+    wrapper.querySelector(".debate-copy-btn").setAttribute("data-raw", content || error || "");
+    messagesEl.appendChild(wrapper);
+    scrollToBottom();
+  }
+
+  function addSynthesisBubble(synthesizer, content, error) {
+    hideWelcome();
+    var wrapper = document.createElement("div");
+    wrapper.className = "chat chat-start";
+
+    var rendered = error
+      ? '<div class="text-error">' + esc(error) + '</div>'
+      : renderMarkdown(content);
+
+    wrapper.innerHTML =
+      '<div class="chat-header text-xs mb-1"><span class="font-mono text-secondary font-semibold">Synthesis by ' + esc(synthesizer) + '</span></div>' +
+      '<div class="chat-bubble debate-bubble synthesis-bubble relative group">' +
+        '<div class="prose-content">' + rendered + '</div>' +
+        copyBtnHtml("left") +
+      '</div>';
+    wrapper.querySelector(".debate-copy-btn").setAttribute("data-raw", content || error || "");
+    messagesEl.appendChild(wrapper);
+    scrollToBottom();
+  }
+
+  function addSystemMessage(text) {
+    var el = document.createElement("div");
+    el.className = "text-center text-xs text-white/30 py-2";
+    el.textContent = text;
+    messagesEl.appendChild(el);
+    scrollToBottom();
+  }
+
+  function addErrorBubble(text) {
+    var wrapper = document.createElement("div");
+    wrapper.className = "chat chat-start";
+    wrapper.innerHTML =
+      '<div class="chat-bubble chat-bubble-error">' + esc(text) + '</div>';
+    messagesEl.appendChild(wrapper);
+    scrollToBottom();
+  }
+
+  // --- Copy button ---
+  function copyBtnHtml(side) {
+    var pos = side === "right" ? "bottom-1 right-1" : "bottom-1 left-1";
+    return '<button class="debate-copy-btn ' + pos + '" onclick="copyBubble(this)" title="Copy">' +
+      '<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">' +
+        '<path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />' +
+      '</svg></button>';
+  }
+
+  // --- Helpers ---
+  function renderMarkdown(text) {
+    if (!text) return "";
+    try { return DOMPurify.sanitize(marked.parse(text)); }
+    catch (e) { return esc(text); }
+  }
+
+  function esc(text) {
+    var d = document.createElement("div");
+    d.textContent = text || "";
+    return d.innerHTML;
+  }
+
+  function scrollToBottom() {
+    requestAnimationFrame(function () {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
+  }
+
+  function isNearBottom() {
+    return messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < 120;
+  }
+
+  messagesEl.addEventListener("scroll", function () {
+    jumpBtn.style.display = isNearBottom() ? "none" : "flex";
+  });
+
+  // --- User actions ---
+  function getSelectedPanel() {
+    var checks = document.querySelectorAll('#panel-checks input[type="checkbox"]:checked');
+    return Array.from(checks).map(function (c) { return c.value; });
+  }
+
+  function sendMessage(text) {
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+      addErrorBubble("Not connected to server. Reconnecting...");
+      connectWs();
+      return;
+    }
+    if (isDebating) return;
+
+    var panel = getSelectedPanel();
+    var synthesizer = document.getElementById("synth-select").value;
+    var rounds = parseInt(document.getElementById("rounds-input").value, 10) || 1;
+
+    if (panel.length === 0) {
+      addErrorBubble("Select at least one panel model.");
+      return;
+    }
+
+    isDebating = true;
+    inputEl.disabled = true;
+    sendBtn.disabled = true;
+    promptsEl.style.display = "none";
+
+    addUserBubble(text);
+
+    socket.send(JSON.stringify({
+      type: "debate_start",
+      query: text,
+      panel: panel,
+      synthesizer: synthesizer,
+      rounds: rounds
+    }));
+  }
+
+  // Expose to global scope for inline handlers
+  window.handleDebateSubmit = function (e) {
+    e.preventDefault();
+    var text = inputEl.value.trim();
+    if (!text) return false;
+    inputEl.value = "";
+    sendMessage(text);
+    return false;
+  };
+
+  window.sendSuggestedPrompt = function (text) {
+    sendMessage(text);
+  };
+
+  window.resetDebate = function () {
+    messagesEl.innerHTML =
+      '<div id="debate-welcome" class="flex items-center justify-center h-full">' +
+        '<div class="text-center space-y-4">' +
+          '<h2 class="text-2xl font-semibold text-white/80">Multi-model debate engine</h2>' +
+          '<p class="text-sm text-white/40">Ask a question to start a debate across your panel of AI models.</p>' +
+        '</div>' +
+      '</div>';
+    promptsEl.style.display = "flex";
+    streamingBar.style.display = "none";
+    isDebating = false;
+    inputEl.disabled = false;
+    sendBtn.disabled = false;
+  };
+
+  window.copyBubble = function (btn) {
+    var raw = btn.getAttribute("data-raw") || "";
+    navigator.clipboard.writeText(raw).then(function () {
+      btn.classList.add("copied");
+      setTimeout(function () { btn.classList.remove("copied"); }, 1500);
+    });
+  };
+
+  window.scrollToBottom = scrollToBottom;
+
+  // Init
+  connectWs();
+})();
+</script>
+{% endblock %}
