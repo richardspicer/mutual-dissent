@@ -103,6 +103,12 @@ class ModelResponse:
             not set. Stored as dict to keep models.py free of routing
             type imports and simplify JSON deserialization.
         analysis: Reserved for future scoring metadata. Empty dict for now.
+        agent_id: Unique identity for this agent within a debate panel.
+            When a panel contains duplicate model aliases (e.g.
+            ``["claude", "claude", "claude"]``), each gets a distinct
+            agent_id like ``"claude-1"``, ``"claude-2"``, ``"claude-3"``.
+            Unique aliases keep their name unchanged (e.g. ``"gpt"``).
+            Empty string when not set (backward compatible).
     """
 
     model_id: str
@@ -118,6 +124,7 @@ class ModelResponse:
     role: str = ""
     routing: dict[str, Any] | None = None
     analysis: dict[str, Any] = field(default_factory=dict)
+    agent_id: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a JSON-compatible dictionary.
@@ -139,7 +146,19 @@ class ModelResponse:
             "role": self.role,
             "routing": self.routing,
             "analysis": self.analysis,
+            "agent_id": self.agent_id,
         }
+
+    @property
+    def display_label(self) -> str:
+        """Agent identity for display and response tracking.
+
+        Returns agent_id if set, otherwise falls back to model_alias.
+
+        Returns:
+            The label to use in display output and response lookups.
+        """
+        return self.agent_id or self.model_alias
 
 
 @dataclass

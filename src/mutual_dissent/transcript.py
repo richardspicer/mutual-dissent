@@ -224,6 +224,7 @@ def _parse_response(data: dict[str, Any]) -> ModelResponse:
         role=data.get("role", ""),
         routing=data.get("routing"),
         analysis=data.get("analysis", {}),
+        agent_id=data.get("agent_id", ""),
     )
 
 

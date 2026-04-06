@@ -37,16 +37,41 @@ MODEL_COLORS: dict[str, str] = {
 DEFAULT_COLOR = "white"
 
 
-def _get_color(alias: str) -> str:
-    """Get the display color for a model alias.
+def _base_alias(label: str) -> str:
+    """Extract the base model alias from an agent identity label.
+
+    Strips a trailing ``-N`` numeric suffix added for duplicate panel
+    members. For example, ``"claude-2"`` returns ``"claude"``, while
+    ``"gpt"`` returns ``"gpt"`` unchanged.
 
     Args:
-        alias: Model short name (e.g. "claude", "gpt").
+        label: Agent identity or model alias string.
+
+    Returns:
+        Base alias suitable for color lookup.
+    """
+    # Only strip if the suffix is purely numeric after the last hyphen.
+    if "-" in label:
+        base, _, suffix = label.rpartition("-")
+        if base and suffix.isdigit():
+            return base
+    return label
+
+
+def _get_color(alias: str) -> str:
+    """Get the display color for a model alias or agent identity.
+
+    For agent identities with numeric suffixes (e.g. ``"claude-2"``),
+    looks up the base alias (``"claude"``) for color mapping.
+
+    Args:
+        alias: Model short name (e.g. "claude", "gpt") or agent identity
+            (e.g. "claude-1").
 
     Returns:
         Rich color string for the model.
     """
-    return MODEL_COLORS.get(alias.lower(), DEFAULT_COLOR)
+    return MODEL_COLORS.get(_base_alias(alias).lower(), DEFAULT_COLOR)
 
 
 def render_debate(transcript: DebateTranscript, *, verbose: bool = False) -> None:
@@ -99,19 +124,20 @@ def _render_response(resp: ModelResponse) -> None:
     Args:
         resp: The model response to display.
     """
-    color = _get_color(resp.model_alias)
+    label = resp.display_label
+    color = _get_color(label)
 
     if resp.error:
         panel = Panel(
             f"[red]Error: {resp.error}[/red]",
-            title=f"[{color} bold]{resp.model_alias}[/{color} bold]",
+            title=f"[{color} bold]{label}[/{color} bold]",
             border_style="red",
             padding=(0, 1),
         )
     else:
         panel = Panel(
             Markdown(resp.content),
-            title=f"[{color} bold]{resp.model_alias}[/{color} bold]",
+            title=f"[{color} bold]{label}[/{color} bold]",
             border_style=color,
             padding=(0, 1),
         )
@@ -130,7 +156,8 @@ def _render_synthesis(synthesis: ModelResponse) -> None:
     Args:
         synthesis: The synthesizer's final response.
     """
-    color = _get_color(synthesis.model_alias)
+    label = synthesis.display_label
+    color = _get_color(label)
 
     if synthesis.error:
         console.print(
@@ -147,7 +174,7 @@ def _render_synthesis(synthesis: ModelResponse) -> None:
     console.print(
         Panel(
             Markdown(synthesis.content),
-            title=f"[{color} bold]Synthesized by {synthesis.model_alias}[/{color} bold]",
+            title=f"[{color} bold]Synthesized by {label}[/{color} bold]",
             border_style=color,
             padding=(1, 2),
         )
@@ -169,12 +196,12 @@ def _render_metadata(transcript: DebateTranscript) -> None:
     table.add_row("Transcript", transcript.short_id)
     table.add_row(
         "Panel",
-        ", ".join(_format_alias(r.model_alias) for r in transcript.rounds[0].responses)
+        ", ".join(_format_alias(r.display_label) for r in transcript.rounds[0].responses)
         if transcript.rounds
         else "none",
     )
 
-    synth_alias = transcript.synthesis.model_alias if transcript.synthesis else "none"
+    synth_alias = transcript.synthesis.display_label if transcript.synthesis else "none"
     table.add_row("Synthesizer", synth_alias)
     table.add_row("Rounds", str(transcript.max_rounds))
 
@@ -378,7 +405,7 @@ def _format_response_markdown(resp: ModelResponse) -> list[str]:
     Returns:
         List of Markdown lines for the response.
     """
-    lines: list[str] = [f"### {resp.model_alias}", ""]
+    lines: list[str] = [f"### {resp.display_label}", ""]
     timing = _format_timing(resp)
     meta_parts = [resp.model_id]
     if timing:
@@ -411,7 +438,7 @@ def _format_synthesis_markdown(transcript: DebateTranscript) -> list[str]:
 
     synth = transcript.synthesis
 
-    lines.append(f"**Synthesized by:** {synth.model_alias}")
+    lines.append(f"**Synthesized by:** {synth.display_label}")
     lines.append(f"**Model:** {synth.model_id}")
     timing = _format_timing(synth)
     if timing:
@@ -470,14 +497,14 @@ def _format_metadata_markdown(transcript: DebateTranscript) -> list[str]:
     lines.append(f"**Transcript:** {transcript.short_id}")
 
     panel_str = (
-        ", ".join(r.model_alias for r in transcript.rounds[0].responses)
+        ", ".join(r.display_label for r in transcript.rounds[0].responses)
         if transcript.rounds
         else ", ".join(transcript.panel)
     )
     lines.append(f"**Panel:** {panel_str}")
 
-    synth_alias = transcript.synthesis.model_alias if transcript.synthesis else "none"
-    lines.append(f"**Synthesizer:** {synth_alias}")
+    synth_label = transcript.synthesis.display_label if transcript.synthesis else "none"
+    lines.append(f"**Synthesizer:** {synth_label}")
     lines.append(f"**Rounds:** {transcript.max_rounds}")
 
     total_tokens = _total_tokens(transcript)

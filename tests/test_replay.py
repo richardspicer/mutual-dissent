@@ -132,6 +132,7 @@ def _make_mock_router() -> MagicMock:
                 round_number=int(req.get("round_number", 0)),
                 content=f"mock reflection {req['model_alias']} round {req.get('round_number', 0)}",
                 token_count=50,
+                agent_id=str(req.get("agent_id", "")),
             )
             for req in requests
         ]
@@ -426,6 +427,7 @@ def _make_transcript_json(
                         "role": "initial",
                         "routing": None,
                         "analysis": {},
+                        "agent_id": "",
                     }
                     for alias in panel
                 ],
@@ -443,6 +445,7 @@ def _make_transcript_json(
             "role": "synthesis",
             "routing": None,
             "analysis": {},
+            "agent_id": "",
         },
         "created_at": "2026-02-28T12:00:00+00:00",
         "metadata": {},
