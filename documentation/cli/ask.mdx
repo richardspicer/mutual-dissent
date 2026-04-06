@@ -51,6 +51,12 @@ dissent ask "Compare MCP vs function calling" --output markdown --file report.md
 
 # JSON transcript to stdout
 dissent ask "What is prompt injection?" --output json --no-save
+
+# Single-model multi-agent debate (3 independent Claude agents)
+dissent ask "What are the tradeoffs of microservices?" --panel claude,claude,claude
+
+# Mixed panel with duplicates
+dissent ask "Evaluate this strategy" --panel claude,claude,gpt --synthesizer gpt
 ```
 
 ## Output

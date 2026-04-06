@@ -3,6 +3,19 @@ title: Changelog
 description: Release history for Mutual Dissent
 ---
 
-Release notes are published with each version on [GitHub Releases](https://github.com/q-uestionable-AI/mutual-dissent/releases).
+Release notes are published with each version on [GitHub Releases](https://github.com/richardspicer/mutual-dissent/releases).
 
-Detailed changelogs for each release will be documented here as the project matures.
+## v0.3.0 (2026-04-06)
+
+**Single-Model Multi-Agent Mode** — Run debates with duplicate model aliases for context-isolated independent evaluation. `--panel claude,claude,claude` now works, with each agent getting a unique identity (claude-1, claude-2, claude-3). Cross-vendor and single-model modes work side by side.
+
+**Web UI Rewrite** — Replaced NiceGUI with Starlette + Jinja2 + DaisyUI. Chat-style debate interface with WebSocket streaming, settings page with provider/model configuration, and transcript dashboard.
+
+- Agent identity tracked in transcripts with per-agent and per-model stats
+- `agent_id` field added to `ModelResponse` with `display_label` property
+- NiceGUI dependency removed; starlette, jinja2, uvicorn added
+- bump aiohttp to 3.13.5 (10 CVEs resolved)
+
+## v0.2.0 and earlier
+
+See [GitHub Releases](https://github.com/richardspicer/mutual-dissent/releases) for full history.

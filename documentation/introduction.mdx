@@ -5,22 +5,22 @@ description: Cross-vendor multi-model debate and consensus engine for AI respons
 
 <img src="/dissent-demo.gif" alt="Mutual Dissent CLI demo" />
 
-Mutual Dissent sends a query to multiple AI models simultaneously, shares competing responses back to each model for reflection and critique, then synthesizes a final answer through a user-selected model.
+Mutual Dissent sends a query to multiple AI models simultaneously, shares competing responses back to each model for reflection and critique, then synthesizes a final answer through a user-selected model. Works with cross-vendor panels (Claude, GPT, Gemini, Grok) or single-model multi-agent panels where context isolation drives independent evaluation.
 
-## Why Cross-Vendor?
+## Why Multi-Model Debate?
 
-Single-vendor multi-agent systems share training data, safety postures, and blind spots. Cross-vendor debate surfaces disagreements that correlated architectures can't — different training data, different failure modes, different priors.
+Single-vendor multi-agent systems share training data, safety postures, and blind spots. Cross-vendor debate surfaces disagreements that correlated architectures can't. Mutual Dissent supports both approaches: cross-vendor panels for maximum diversity, or single-model panels (e.g., `--panel claude,claude,claude`) where each agent evaluates independently through context isolation.
 
 ## The Debate Loop
 
-1. **Fan out** — the query goes to all panel models in parallel (Claude, GPT, Gemini, Grok by default)
-2. **Reflect** — each model sees the others' responses and argues back (1–3 rounds)
+1. **Fan out** — the query goes to all panel agents in parallel
+2. **Reflect** — each agent sees the others' responses and argues back (1–3 rounds)
 3. **Synthesize** — a designated model distills the full debate into a final answer
 4. **Log** — the complete transcript is saved as structured JSON with cost and token data
 
-## As a Research Platform
+## Transcript Logging
 
-Every debate produces a structured JSON transcript. These transcripts support disagreement analysis, convergence dynamics, consensus poisoning research, and unanimous hallucination detection. The `--ground-truth` flag scores synthesis against a reference answer using a judge model.
+Every debate produces a structured JSON transcript with cost, token, latency, and routing data. Browse and export transcripts via the web dashboard or CLI. The `--ground-truth` flag scores synthesis against a reference answer using a judge model.
 
 ## Get Started
 

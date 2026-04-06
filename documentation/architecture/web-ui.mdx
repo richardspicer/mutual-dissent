@@ -1,9 +1,9 @@
 ---
 title: Web UI
-description: NiceGUI web interface architecture
+description: Starlette + Jinja2 + DaisyUI web interface architecture
 ---
 
-The web UI is a NiceGUI application started with `dissent serve`. It provides a browser-based interface for running debates, browsing transcripts, and managing configuration.
+The web UI is a Starlette application started with `dissent serve`. It provides a browser-based interface for running debates, browsing transcripts, and managing configuration.
 
 ## Starting the Server
 
@@ -15,20 +15,33 @@ dissent serve --host 0.0.0.0 --no-open  # all interfaces, no browser launch
 
 ## Pages
 
-**Debate view** — run debates from the browser. Each model's response streams in via WebSocket as it arrives. Synthesis appears after all reflection rounds complete.
+**Debate view** (`/`) — chat-style interface for running debates. Type a query, configure the panel and rounds, and watch responses stream in via WebSocket. Each agent's response appears as a chat bubble with the agent identity label. Synthesis renders as a distinct bubble after all rounds complete.
 
-**Research dashboard** — browse saved transcripts from `~/.mutual-dissent/transcripts/`. Charts include convergence over rounds, per-model influence heatmap, and cost breakdown.
+**Dashboard** (`/dashboard`) — browse saved transcripts from `~/.mutual-dissent/transcripts/`. View debate details and export transcripts as JSON or markdown.
 
-**Config panel** — view and edit provider keys and routing configuration. Changes are written to `~/.mutual-dissent/config.toml`.
+**Settings** (`/settings`) — view and edit provider API keys, model aliases, routing configuration, and debate defaults. Changes are written to `~/.mutual-dissent/config.toml`.
 
-## Known Limitations
+## Technology Stack
 
-**Navigation kills running debates.** NiceGUI re-creates pages on route change, which destroys the current page and orphans the running asyncio task. If you navigate away during a debate, the results are lost. Stay on the debate page until synthesis completes.
+- **Backend:** Starlette with Jinja2 templates and uvicorn
+- **Frontend:** DaisyUI + Tailwind CSS (CDN), vanilla JavaScript
+- **Streaming:** WebSocket for real-time debate events
+- **Markdown rendering:** marked.js + DOMPurify (CDN)
+- **No build step** — all frontend dependencies loaded via CDN
 
-**Dashboard export is metadata only.** The JSON/CSV export from the research dashboard serializes the transcript index (summary metadata), not full debate transcripts. To export full transcripts, use `dissent show <id> --output json` from the CLI.
+## WebSocket Protocol
 
-**Influence heatmap label clipping.** Mid-range labels in the ECharts visualMap component may render behind the bar or be color-invisible. This is a known display bug.
+The debate page communicates via WebSocket at `/ws/debate`. Events:
+
+| Direction | Type | Description |
+|-----------|------|-------------|
+| Client → Server | `debate_start` | Initiates a debate with query, panel, synthesizer, rounds |
+| Server → Client | `debate_status` | Round progress updates |
+| Server → Client | `debate_response` | Individual agent response with agent identity |
+| Server → Client | `debate_synthesis` | Final synthesized answer |
+| Server → Client | `debate_done` | Debate complete with transcript ID |
+| Server → Client | `debate_error` | Error during debate execution |
 
 ## Architecture
 
-The web application entry point is `mutual_dissent.web.app`. Pages are defined in `web/pages/`, reusable components in `web/components/`, and shared layout in `web/layout.py`. The color palette is defined in `web/colors.py`.
+The web application entry point is `mutual_dissent.web.app`. Routes are defined in `web/routes.py`, WebSocket handling in `web/websocket.py`, templates in `web/templates/`, and static assets in `web/static/`. The dark theme uses DaisyUI's OKLCH color system with custom overrides in `app.css`.

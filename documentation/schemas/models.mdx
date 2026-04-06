@@ -41,6 +41,8 @@ One model's response in one round.
 ```python
 response.model_id       # str — full OpenRouter or vendor model ID
 response.model_alias    # str — short alias (e.g. "claude")
+response.agent_id       # str — unique agent identity (e.g. "claude-2"), empty if not set
+response.display_label  # property — returns agent_id if set, else model_alias
 response.round_number   # int
 response.role           # str — "initial", "reflection", or "synthesis"
 response.content        # str — response text

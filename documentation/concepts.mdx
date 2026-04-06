@@ -14,7 +14,23 @@ The panel is the set of models that participate in a debate. The default panel i
 | `gemini` | google/gemini-2.5-pro |
 | `grok` | x-ai/grok-4 |
 
-You can pass any subset of aliases or full OpenRouter model IDs to `--panel`.
+You can pass any subset of aliases or full OpenRouter model IDs to `--panel`. Duplicate aliases are supported for single-model multi-agent debates:
+
+```bash
+dissent ask "Your query" --panel claude,claude,claude
+```
+
+## Agent Identity
+
+When a panel contains duplicate model aliases, each agent receives a unique identity by appending a numeric suffix: `claude-1`, `claude-2`, `claude-3`. When aliases are unique, they are used as-is with no suffix.
+
+Agent identities are used for:
+- **Reflection pairing** — each agent sees its own previous response and the others' responses
+- **Display labels** — CLI and web UI show the agent identity, not the raw alias
+- **Stats tracking** — per-agent token and cost breakdown alongside per-model rollups
+- **Transcript logging** — the `agent_id` field in `ModelResponse` persists in JSON transcripts
+
+The `display_label` property on `ModelResponse` returns the agent identity if set, falling back to the model alias for backward compatibility with older transcripts.
 
 ## Rounds
 
