@@ -47,11 +47,11 @@ flowchart TD
 | `types.py` | `Vendor`, `RoutingDecision`, `RoutedRequest` |
 | `transcript.py` | JSON serialization, file storage, listing, loading |
 | `cli.py` | Click command group, output formatting dispatch |
-| `web/app.py` | NiceGUI application entry point |
+| `web/app.py` | Starlette application entry point |
 | `prompts.py` | Prompt templates for initial, reflection, and synthesis rounds |
 | `scoring.py` | Ground-truth scoring via judge model |
 | `pricing.py` | OpenRouter pricing cache, cost computation |
 
 ## Async Model
 
-The orchestrator and provider layer are fully async. All model calls within a single round execute concurrently via `asyncio.gather`. The CLI runs the event loop with `asyncio.run()`. The web UI uses NiceGUI's async event loop.
+The orchestrator and provider layer are fully async. All model calls within a single round execute concurrently via `asyncio.gather`. The CLI runs the event loop with `asyncio.run()`. The web UI runs on uvicorn's async event loop.

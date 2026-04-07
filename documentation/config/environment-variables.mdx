@@ -28,7 +28,7 @@ For each provider, key resolution follows this order:
 
 ## Minimal Setup
 
-Only one key is required to run debates — `OPENROUTER_API_KEY` routes all four default models through OpenRouter:
+Only one key is required to run debates — `OPENROUTER_API_KEY` routes all five default models through OpenRouter:
 
 ```bash
 export OPENROUTER_API_KEY=sk-or-...
@@ -44,7 +44,7 @@ export OPENROUTER_API_KEY=sk-or-...
 export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-With this setup, `claude` calls go directly to the Anthropic API; `gpt`, `gemini`, and `grok` route through OpenRouter.
+With this setup, `claude-opus` and `claude` calls go directly to the Anthropic API; `gpt`, `gemini`, `grok`, and `nemotron` route through OpenRouter.
 
 ## Notes
 

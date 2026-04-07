@@ -43,6 +43,7 @@ decision = router.route("claude")
 | OpenAI | — | Via OpenRouter |
 | Google | — | Via OpenRouter |
 | xAI | — | Via OpenRouter |
+| Nvidia | — | Via OpenRouter |
 | Groq | — | Via OpenRouter |
 | OpenRouter | `providers/openrouter.py` | ✅ Universal fallback |
 
@@ -50,4 +51,4 @@ All providers implement the `Provider` base class in `providers/base.py`.
 
 ## Vendor Resolution
 
-The router maps model aliases and OpenRouter model IDs to vendors via their ID prefix (`anthropic/`, `openai/`, `google/`, `x-ai/`, `groq/`). Unknown prefixes fall back to `Vendor.OPENROUTER`.
+The router maps model aliases and OpenRouter model IDs to vendors via their ID prefix (`anthropic/`, `openai/`, `google/`, `x-ai/`, `nvidia/`, `groq/`). Unknown prefixes fall back to `Vendor.OPENROUTER`.

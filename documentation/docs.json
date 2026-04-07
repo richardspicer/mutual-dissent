@@ -11,7 +11,7 @@
   "topbarLinks": [
     {
       "name": "GitHub",
-      "url": "https://github.com/q-uestionable-ai/mutual-dissent"
+      "url": "https://github.com/richardspicer/mutual-dissent"
     }
   ],
   "topbarCtaButton": {
@@ -70,7 +70,7 @@
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/q-uestionable-ai/mutual-dissent",
+      "github": "https://github.com/richardspicer/mutual-dissent",
       "website": "https://richardspicer.io"
     }
   },
