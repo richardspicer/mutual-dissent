@@ -5,14 +5,16 @@ description: Fan-out, reflection, synthesis — how multi-model debates work
 
 ## Panel
 
-The panel is the set of models that participate in a debate. The default panel is `claude`, `gpt`, `gemini`, and `grok`. Each alias maps to a specific model:
+The panel is the set of models that participate in a debate. The default panel is `claude-opus`, `gpt`, `gemini`, `grok`, and `nemotron`. Each alias maps to a specific model:
 
 | Alias | Model |
 |-------|-------|
+| `claude-opus` | anthropic/claude-opus-4.6 |
 | `claude` | anthropic/claude-sonnet-4-6 |
-| `gpt` | openai/gpt-5.2 |
-| `gemini` | google/gemini-2.5-pro |
-| `grok` | x-ai/grok-4 |
+| `gpt` | openai/gpt-5.4 |
+| `gemini` | google/gemini-3.1-pro-preview |
+| `grok` | x-ai/grok-4.20-beta |
+| `nemotron` | nvidia/nemotron-3-super-120b-a12b |
 
 You can pass any subset of aliases or full OpenRouter model IDs to `--panel`. Duplicate aliases are supported for single-model multi-agent debates:
 
@@ -40,7 +42,7 @@ The default is 1 reflection round. The maximum is 3. More rounds increase cost a
 
 ## Synthesis
 
-After all reflection rounds complete, the **synthesizer** model receives the full debate transcript and distills it into a final answer. The synthesizer defaults to `claude` but can be any model alias. The synthesizer participates in the debate panel as well unless excluded explicitly.
+After all reflection rounds complete, the **synthesizer** model receives the full debate transcript and distills it into a final answer. The synthesizer defaults to `claude-opus` but can be any model alias. The synthesizer participates in the debate panel as well unless excluded explicitly.
 
 ## Transcripts
 
