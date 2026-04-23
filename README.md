@@ -13,8 +13,6 @@
 
 Web UI with chat-style debate view, dashboard, and full CLI. Multi-model and single-model multi-agent modes. Direct vendor APIs, replay, cost tracking, and markdown export.
 
-> Built by [Richard Spicer](https://richardspicer.io) · [GitHub](https://github.com/richardspicer)
-
 ---
 
 ## Install
