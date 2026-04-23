@@ -3,10 +3,8 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![CI](https://github.com/richardspicer/mutual-dissent/actions/workflows/ci.yml/badge.svg)](https://github.com/richardspicer/mutual-dissent/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/richardspicer/mutual-dissent/actions/workflows/codeql.yml/badge.svg)](https://github.com/richardspicer/mutual-dissent/actions/workflows/codeql.yml)
-
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
 [![Docs](https://img.shields.io/badge/docs-mutual--dissent.dev-8b5cf6)](https://docs.mutual-dissent.dev)
 
 **Cross-vendor multi-model debate and consensus engine for AI response distillation.**
@@ -38,10 +36,6 @@ uv sync --group dev
 3. **Synthesize** — A user-selected model distills the debate into a final answer
 4. **Log** — Full debate transcript saved as structured JSON with cost and token data
 
-## Why Multi-Model Debate?
-
-Single-vendor multi-agent systems (Grok's 4-agent debate, Anthropic's agent teams) share the same training data and blind spots. Cross-vendor debate surfaces disagreements that correlated architectures can't. Mutual Dissent supports both modes: cross-vendor panels for maximum diversity, or single-model multi-agent panels (e.g., `--panel claude,claude,claude`) where context isolation drives independent evaluation.
-
 ## Usage
 
 ```bash
@@ -59,18 +53,6 @@ dissent config test
 `mutual-dissent` also works as the full command name. Full documentation at [docs.mutual-dissent.dev](https://docs.mutual-dissent.dev).
 
 ---
-
-## Status
-
-| Capability | Status |
-|------------|--------|
-| Core debate loop | ✅ Complete — fan-out, reflection, synthesis |
-| Provider abstraction | ✅ Complete — direct Anthropic API, OpenRouter, mixed-panel routing |
-| Single-model multi-agent | ✅ Complete — duplicate aliases with context-isolated agents |
-| CLI tools | ✅ Complete — replay, scoring, cost tracking, markdown export |
-| Web UI | ✅ Complete — Starlette + DaisyUI chat interface, dashboard, settings |
-| Documentation | ✅ Complete — Mintlify docs site with AI assistant and MCP server |
-| Desktop app & batch mode | Planned — Tauri wrapper, alternative topologies |
 
 ## Transcript Logging
 
