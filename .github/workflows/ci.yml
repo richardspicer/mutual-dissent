@@ -62,4 +62,5 @@ jobs:
 
       - name: pip-audit (dependency vulnerabilities)
         # CVE-2026-4539: pygments ReDoS in AdlLexer — no fix available upstream (2.19.2 is latest)
-        run: uv run pip-audit --ignore-vuln CVE-2026-4539
+        # CVE-2026-3219: pip archive type ambiguity - no patched version available upstream yet
+        run: uv run pip-audit --ignore-vuln CVE-2026-4539 --ignore-vuln CVE-2026-3219
